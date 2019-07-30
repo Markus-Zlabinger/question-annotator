@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            background-color: powderblue;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>Question Annotator</title>
+</head>
+
+<body>
+
+
+<!-- "text" und "cars" in javascript onclick einfügen -->
+
+<!--****************************************************************************-->
+<!--
+<h1 style="color:DarkGoldenRod;">Calculator</h1>
+<input type="number" id="a" value="50">+<input type="number" id="b" value="50">
+<button onclick="add()">Addieren</button>
+<p id="calc"></p>
+<output id="x"></output>
+<!--****************************************************************************-->
+<!--
+<h1 style="color:green;">Formular</h1>
+
+<p>Load CSV Data from your computer:</p>
+
+<button type="button" onclick="loadDoc()">Request CSV data</button>
+<p id="CSVresult"></p>
+-->
+<!--<button type="button" onclick="loadDoc()">Get my Data</button><br>
+<table id="datenlesen"></table>
+<form action="/Mappe1.xlsx">
+First name:
+<input type="text" id="vn" name="vorname"><br>
+Last name:
+<input type="text" id="nn" name="nachname"><br>
+<input type="submit" value="Submit">
+<button onclick="send()">Senden</button>
+</form>-->
+<form action="http://localhost:5000/saveannotation" method="post">
+    <h1>Question Annotator</h1>
+
+    <h2>Candidate Question</h2>
+    <input type="text" id="cand" name="candiate" value="how to extend the contract" readonly>
+    <!-- text in javascript angeben -->
+
+    <h2>Similar Questions</h2>
+    <select name="questionlist" size="10" multiple>
+        {% for qid, question in questions %}
+            <option value="{{ qid }}">{{ qid }}: {{ question }}</option>
+        {% endfor %}
+    </select>
+    <br>
+
+{#    <h2>Similar Questions</h2>#}
+{#    <select name="cars" id="list" size="10" multiple>#}
+{#        <option value="sim0">extension</option>#}
+{#        <option value="sim1">contract extend</option>#}
+{#        <option value="sim2" selected>password new</option>#}
+{#        <option value="sim3">easy way to extend contract</option>#}
+{#        <option value="sim4">where is password</option>#}
+{#        <option value="sim5" selected>is stefan godlike</option>#}
+{#    </select>#}
+{#    <button onclick="clickMe()">Auswahl</button>#}
+{#    <br>#}
+{#    <output id="versuch"></output>#}
+{#    <br>#}
+
+    <h2>Answer Label</h2>
+    <input type="text" id="g" name="label" value="123test">
+    <button>Transmit</button>
+    <br>
+</form>
+
+
+<br>
+<br>
+<br>
+<br>
+<h2>Reset Everything</h2>
+<form action="http://localhost:5000/reset" method="post">
+    <button>Reset</button>
+</form>
+
+<script>
+{#    function loadDoc() {#}
+{#        var file = "file:///C:/Users/Stefan/Desktop/WebInterface/mydata.csv";#}
+{#        document.getElementById("CSVresult").innerHTML = file;#}
+{#        Papa.parse(file, {#}
+{#            complete: function (results) {#}
+{#                console.log("Results:", results);#}
+{#            }#}
+{#        });#}
+{#//document.getElementById("CSVresult").innerHTML = "nix";#}
+{#        alert("CSV leer");#}
+{#    }#}
+{##}
+{#    function add() {#}
+{#        //alert('START');  //Fenster öffnet sich#}
+{#        document.getElementById("calc").innerHTML = "Die Summe ";#}
+{#        var summe = parseInt(a.value) + parseInt(b.value);#}
+{#        //document.getElementById("x").innerHTML = x.value=parseInt(a.value)+parseInt(b.value);#}
+{#        document.getElementById("x").innerHTML = summe;#}
+{#    }#}
+{##}
+{#    function getList() {#}
+{#        var xlist = document.getElementById("list");#}
+{#        var len = xlist.options.length;#}
+{#        var irgendwas = "";#}
+{#        for (i = 0; i < len; i++) {#}
+{#            //alert("bin in schleife" + xlist.options.selectedIndex);#}
+{#            document.getElementById("versuch").innerHTML = "\nSchritt i: " + i + "<br>";#}
+{#            if (xlist.options[i].selected) {#}
+{#                xlist.options[i].selected = 'unselected';#}
+{#                irgendwas += xlist.options[i].value + ",";#}
+{#                //alert("bin in if Bedingung: " + irgendwas);#}
+{#            }//end if#}
+{#        }//end for#}
+{#        //alert(irgendwas + "\noptionen: " + len);#}
+{#        return irgendwas;#}
+{#    }#}
+{##}
+{#    function clickMe() {#}
+{#        var irgendwas2 = getList();#}
+{#        alert("Ausgewählte Optionen: " + irgendwas2);#}
+{#    }#}
+{##}
+{#    function transmit() {#}
+{#//Teil1 (Stefan):#}
+{#//1. Variable "Answer Label"#}
+{#        var label = g.value;#}
+{#//2. Variable (liste, array) "List of Similar Questions" /ids (zB [sim0,sim1,sim3] )#}
+{#        var listQ = getList();#}
+{#//3. Variable "Candidate" /ids#}
+{#        var candidateName = cand.value;#}
+{#        //alert("Übergebene Daten:\n label: " + label + " \nCandidate: " + candidateName + "\nList: " + listQ);#}
+{#//alert("nix " + label);#}
+{##}
+{#//Teil2 (Stefan + Markus):#}
+{#//Senden an Pyhton Server (TODO)#}
+{#    }#}
+</script>
+</body>
+</html> 
