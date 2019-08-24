@@ -46,7 +46,34 @@
 </div>
 
 <script>
-
+ function init() {
+      var s = document.getElementsByTagName('select');
+      for (var i = 0; i < s.length; i++) {
+        if (s[i].multiple) {
+          s[i].onclick = updateSelect;
+        }
+      }
+    }
+    function updateSelect(e) {
+      var opts = this.getElementsByTagName('option'), t, o;
+      if (e) {
+        e.preventDefault();
+        t = e.target;
+      }
+      else if (window.event) {
+        window.event.returnValue = false;
+        t = window.event.srcElement;
+      }
+      else return;
+      t = e.target || window.event.srcElement;
+      if (t.className == 'selected') t.className = '';
+      else t.className = 'selected';
+      for (var i = 0, j = opts.length; i < j; i++) {
+        if (opts[i].className == 'selected') opts[i].selected = true;
+        else opts[i].selected = false;
+      }
+    }
+    window.onload = init;
 {##}
 {##}
 {#    function getList() {#}
