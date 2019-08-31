@@ -3,7 +3,7 @@
 <head>
     <style>
         body {background-color: tan;}
-        div { text-align: center }
+        .div1 { text-align: center }
     </style>
     <meta charset="UTF-8">
     <title>Question Annotator</title>
@@ -12,39 +12,56 @@
 <body>
 
 
-<div>
-    <form action="http://localhost:5000/saveannotation" method="post">
-         <h1 style=color:white;">--== Question Annotator ==--</h1>
+<div class="div1">
+    <h1 style=color:white;>--== Question Annotator ==--</h1>
 
-         <h2>Candidate Question</h2>
-        <input type="text" id="cand" name="candiate" value="how to extend the contract" readonly>
-        <!-- text in javascript angeben -->
+    <h2>Candidate Question</h2>
+    <input type="text" id="cand" name="candiate" value="how to extend the contract" readonly>
+	<br>
+</div>
+<div class="div1" style="float:left;padding-left:8em">
+   <form action="http://localhost:5000/saveannotation" method="post">
 
-         <h2>Similar Questions</h2>
+		<h2>Similar Questions</h2>
         <select name="questionlist" size="10" multiple>
-             {% for qid, question in questions %}
+           {% for qid, question in questions %}
                 <option value="{{ qid }}">{{ qid }}: {{ question }}</option>
-            {% endfor %}
+           {% endfor %}
         </select>
         <br>
 
 
-    <h2>Answer Label</h2>
-    <input type="text" id="g" name="label" value="123test">
-    <button>Transmit</button>
-    <br>
+        <h2>Answer Label</h2>
+        <input type="text" id="g" name="label" value="123test">
+        <button>Transmit</button>
+        <br>
+   </form>
 
-    </form>
-
-    <br>
-    <br>
-    <br>
-    <h2>Reset Everything</h2>
-    <form action="http://localhost:5000/reset" method="post">
-        <button>Reset</button>
-    </form>
+        <br>
+        <br>
+        <br>
+        <h2>Reset Everything</h2>
+        <form action="http://localhost:5000/reset" method="post">
+            <button>Reset</button>
+        </form>
 </div>
-
+<div class="div1" style="float:right;padding:10em">
+    <form action="http://localhost:5000/relabel" method="post">
+        <h2>Already annotated</h2>
+        <p> Q-ID : Label | Question</p>
+        <select name="annotationlist" size="20" multiple>
+            {% for qid, question in annotated_data %}
+              <option value="{{ qid }}">{{ qid }}: {{ question[0] }} | {{ question[1] }}</option>
+            {% endfor %}
+        </select>
+        <h2>Change Label</h2>
+        <input type="text" id="g2" name="newlabel" value="new1">
+        <button>ReLabel</button>
+    </form>
+	<br>
+	<br>
+	<br>
+</div>
 <script>
  function init() {
       var s = document.getElementsByTagName('select');
@@ -74,44 +91,7 @@
       }
     }
     window.onload = init;
-{##}
-{##}
-{#    function getList() {#}
-{#        var xlist = document.getElementById("list");#}
-{#        var len = xlist.options.length;#}
-{#        var irgendwas = "";#}
-{#        for (i = 0; i < len; i++) {#}
-{#            //alert("bin in schleife" + xlist.options.selectedIndex);#}
-{#            document.getElementById("versuch").innerHTML = "\nSchritt i: " + i + "<br>";#}
-{#            if (xlist.options[i].selected) {#}
-{#                xlist.options[i].selected = 'unselected';#}
-{#                irgendwas += xlist.options[i].value + ",";#}
-{#                //alert("bin in if Bedingung: " + irgendwas);#}
-{#            }//end if#}
-{#        }//end for#}
-{#        //alert(irgendwas + "\noptionen: " + len);#}
-{#        return irgendwas;#}
-{#    }#}
-{##}
-{#    function clickMe() {#}
-{#        var irgendwas2 = getList();#}
-{#        alert("Ausgewählte Optionen: " + irgendwas2);#}
-{#    }#}
-{##}
-{#    function transmit() {#}
-{#//Teil1 (Stefan):#}
-{#//1. Variable "Answer Label"#}
-{#        var label = g.value;#}
-{#//2. Variable (liste, array) "List of Similar Questions" /ids (zB [sim0,sim1,sim3] )#}
-{#        var listQ = getList();#}
-{#//3. Variable "Candidate" /ids#}
-{#        var candidateName = cand.value;#}
-{#        //alert("Übergebene Daten:\n label: " + label + " \nCandidate: " + candidateName + "\nList: " + listQ);#}
-{#//alert("nix " + label);#}
-{##}
-{#//Teil2 (Stefan + Markus):#}
-{#//Senden an Pyhton Server (TODO)#}
-{#    }#}
+
 </script>
 </body>
 </html> 

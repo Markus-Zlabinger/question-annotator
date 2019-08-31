@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 # Load Global Variables
 QUESTION_POOL = None
-QUESTION_POOL_CSV=None
+QUESTION_POOL_ANNOT=None
 SIM_MATRIX = None
 CSVpath = "annot.csv"
 
@@ -55,38 +55,44 @@ def remove_questions_from_pool(toremove):
 @app.before_first_request
 def initialize():
     print("INITIALIZE")
-    global ALREADY_LABELED, QUESTION_POOL, QUESTION_POOL_CSV, SIM_MATRIX, CSVpath
+    global ALREADY_LABELED, QUESTION_POOL, QUESTION_POOL_ANNOT, SIM_MATRIX, CSVpath
     ALREADY_LABELED = set()
     QUESTION_POOL = load_questions(config.PATH_QUESTIONS)  # [(QID1, QuestionText1), ..., (QIDN, QuestionTextN)]
-    QUESTION_POOL_CSV = load_questions(config.PATH_QUESTIONS)
     SIM_MATRIX = pickle.load(open(config.PATH_SIM_MATRIX, "rb"))
     assert len(QUESTION_POOL) == SIM_MATRIX.shape[0] == SIM_MATRIX.shape[1]
 
     #schauen was bereits in file anotiert ist und aus Pool löschen
     annotated = list()
+    QUESTION_POOL_ANNOT = dict()
     with open(CSVpath, mode="r", encoding="utf-8") as f:
         s = csv.reader(f, delimiter=",")
         # print(list(s)[0][2])
-        # for label, idn, querry in s:
+        # for idn, label, querry in s:
         for idn in s:
             # print(idn[1], idn[2])
             for num, line in QUESTION_POOL.items():
-                if num == idn[1] and line == idn[2]:
+                if num == idn[0] and line == idn[2]:
                     # print("schon enthalten: %s", num, line)
                     annotated.append(num)
+                    QUESTION_POOL_ANNOT[idn[0]]=idn[1], idn[2]
     print("already annotated in file:", annotated)
+    # print(QUESTION_POOL.items())
+    print("############################")
+    # print(QUESTION_POOL_ANNOT.items())
+
     # Remove questions that were already annotated in file
     remove_questions_from_pool(set(annotated))
 
 @app.route('/')
 def index():
     candidate = get_random_candidate()
-    return render_template('interface.html', name="Startpage", questions=QUESTION_POOL.items())
-
+    return render_template('interface.html', name="Startpage", questions=QUESTION_POOL.items(), annotated_data=QUESTION_POOL_ANNOT.items())
+    # annotated_data=QUESTION_POOL_ANNOT.items()
 
 @app.route('/saveannotation',methods = ['POST', 'GET'])
 def saveannotation():
-    global QUESTION_POOL_CSV
+    global QUESTION_POOL
+    global QUESTION_POOL_ANNOT
     global CSVpath
     try:
         label = request.form.get('label')
@@ -101,17 +107,48 @@ def saveannotation():
         s = csv.writer(open(CSVpath, "a", newline='', encoding="utf-8"), delimiter=",")
         for qid_html in question_ids:
             # print(qid_html)
-            for qid, question in QUESTION_POOL_CSV.items():
+            for qid, question in QUESTION_POOL.items():
                 # print(qid, qid_html, question)
                 if qid_html == qid:
                     # print("bin in if")
                     tex = question.strip()
-                    s.writerow([label, qid, tex])
+                    s.writerow([qid, label, tex])
+                    # QUESTION_POOL_CSV[qid]=label, tex
+                    QUESTION_POOL_ANNOT[qid] = label, tex
         # End writing to CSV
 
         # Remove questions that were already annotated from our pool
         remove_questions_from_pool(set(question_ids))
 
+    except Exception as e:
+        print("Something went wrong!")
+        print(e)
+    return index()
+
+@app.route('/relabel',methods = ['POST', 'GET'])
+def relabel():
+    global QUESTION_POOL_ANNOT
+    global CSVpath
+    try:
+        newlabel = request.form.get('newlabel')
+        annotation_ids = request.form.getlist('annotationlist')
+        for qid_html in annotation_ids:
+            # print(qid_html)
+            #for Qestion-Id, label, text
+            for qid, question in QUESTION_POOL_ANNOT.items():
+                # print(qid, qid_html, question)
+                if qid_html == qid:
+                    # print("bin in if - Label ändern")
+                    # QUESTION_POOL_CSV[qid]=newlabel, tex
+                    QUESTION_POOL_ANNOT[qid] = newlabel, question[1]
+
+        # CSV Datei neu beschreiben:
+        s = csv.writer(open(CSVpath, "w", newline='', encoding="utf-8"), delimiter=",")
+        s.writerow(["Qestion ID", "Label", "Query"])
+        # print(QUESTION_POOL_ANNOT.items())
+        for qid, question in QUESTION_POOL_ANNOT.items():
+            # print(qid, question[0], question[1])
+            s.writerow([qid, question[0], question[1]])
     except Exception as e:
         print("Something went wrong!")
         print(e)
@@ -128,7 +165,7 @@ def reset():
     # reset the Anotation File
     print("reset the annotation File")
     s = csv.writer(open(CSVpath, "w", newline='', encoding="utf-8"), delimiter=",")
-    s.writerow(["Label", "Qestion_ID", "Query"])
+    s.writerow(["Qestion ID", "Label", "Query"])
     initialize()
     return index()
 
