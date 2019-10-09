@@ -22,7 +22,7 @@ export default new Router({
     },
     {
       path: '/annotation',
-      name: 'annotation',
+      name: 'annotator.py',
       component: Annotation
     },
     {

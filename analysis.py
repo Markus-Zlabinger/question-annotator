@@ -89,6 +89,7 @@ def get_clusters():
 def testpost():
     if request.method == 'POST':
         print(request.data)
+        print(request.json)
         return jsonify({
             "persisted": True
         })

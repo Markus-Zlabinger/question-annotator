@@ -2,8 +2,13 @@
 <html>
 <head>
     <style>
-        body {background-color: tan;}
-        .div1 { text-align: center }
+        body {
+            background-color: tan;
+        }
+
+        .div1 {
+            text-align: center
+        }
     </style>
     <meta charset="UTF-8">
     <title>Question Annotator</title>
@@ -11,87 +16,113 @@
 
 <body>
 
+<div>
+    <form action="http://localhost:5000/saveannotation" method="post">
+        <div class="div1">
+            <h1 style=color:white;>--== Question Annotator ==--</h1>
 
-<div class="div1">
-    <h1 style=color:white;>--== Question Annotator ==--</h1>
+            <h2>Candidate Question</h2>
+            <input type="text" value="{{ candidate["qid"] }}: {{ candidate["question"] }}" readonly>
+            <input type="text" name="candidate" value="{{ candidate["qid"] }}" readonly hidden>
+            <br>
+        </div>
+        <div class="div1" style="float:left;padding:1em">
 
-    <h2>Candidate Question</h2>
-    <input type="text" id="cand" name="candiate" value="how to extend the contract" readonly>
-	<br>
+
+            <h2>Similar Questions</h2>
+            <select name="questionlist" size="10" multiple>
+                {% for question in questions %}
+                    {% if qid != candidate["qid"] %}
+                        <option value="{{ question["qid"] }}">{{ question["qid"] }}: {{ question["question"] }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            <br>
+
+
+            <h2>Answer Label</h2>
+{#            <input type="text" id="g" name="label" value="123test">#}
+            <button>Transmit</button>
+            <br>
+
+
+            <br>
+            <br>
+            <br>
+
+        </div>
+        <div class="div1" style="float:left;padding:1em">
+            <h2>Answer Catalog</h2>
+            <select name="labels" size="20" multiple style="width: 400px">
+                {% for aid, answer in answers.items() %}
+                    <option value="{{ aid }}">{{ aid }}: {{ answer }}</option>
+                {% endfor %}
+            </select>
+            <br>
+            <br>
+            <br>
+        </div>
+    </form>
 </div>
-<div class="div1" style="float:left;padding-left:8em">
-   <form action="http://localhost:5000/saveannotation" method="post">
-
-		<h2>Similar Questions</h2>
-        <select name="questionlist" size="10" multiple>
-           {% for qid, question in questions %}
-                <option value="{{ qid }}">{{ qid }}: {{ question }}</option>
-           {% endfor %}
-        </select>
-        <br>
-
-
-        <h2>Answer Label</h2>
-        <input type="text" id="g" name="label" value="123test">
-        <button>Transmit</button>
-        <br>
-   </form>
-
-        <br>
-        <br>
-        <br>
-        <h2>Reset Everything</h2>
-        <form action="http://localhost:5000/reset" method="post">
-            <button>Reset</button>
-        </form>
+<div style="clear: both">
+    <h2>Reset Everything</h2>
+    <form action="http://localhost:5000/reset" method="post">
+        <button>Reset</button>
+    </form>
 </div>
+<!--
+
+
 <div class="div1" style="float:right;padding:10em">
     <form action="http://localhost:5000/relabel" method="post">
         <h2>Already annotated</h2>
         <p> Q-ID : Label | Question</p>
         <select name="annotationlist" size="20" multiple>
             {% for qid, question in annotated_data %}
-              <option value="{{ qid }}">{{ qid }}: {{ question[0] }} | {{ question[1] }}</option>
+                <option value="{{ qid }}">{{ qid }}: {{ question[0] }} | {{ question[1] }}</option>
             {% endfor %}
         </select>
         <h2>Change Label</h2>
         <input type="text" id="g2" name="newlabel" value="new1">
         <button>ReLabel</button>
     </form>
-	<br>
-	<br>
-	<br>
+    <br>
+    <br>
+    <br>
 </div>
-<script>
- function init() {
-      var s = document.getElementsByTagName('select');
-      for (var i = 0; i < s.length; i++) {
-        if (s[i].multiple) {
-          s[i].onclick = updateSelect;
-        }
-      }
-    }
-    function updateSelect(e) {
-      var opts = this.getElementsByTagName('option'), t, o;
-      if (e) {
-        e.preventDefault();
-        t = e.target;
-      }
-      else if (window.event) {
-        window.event.returnValue = false;
-        t = window.event.srcElement;
-      }
-      else return;
-      t = e.target || window.event.srcElement;
-      if (t.className == 'selected') t.className = '';
-      else t.className = 'selected';
-      for (var i = 0, j = opts.length; i < j; i++) {
-        if (opts[i].className == 'selected') opts[i].selected = true;
-        else opts[i].selected = false;
-      }
-    }
-    window.onload = init;
-
-</script>
+-->
+{#<script>#}
+{#<!--#}
+{#    function init() {#}
+{#        var s = document.getElementsByTagName('select');#}
+{#        for (var i = 0; i < s.length; i++) {#}
+{#            if (s[i].multiple) {#}
+{#                s[i].onclick = updateSelect;#}
+{#            }#}
+{#        }#}
+{#    }#}
+{##}
+{#    function updateSelect(e) {#}
+{#        var opts = this.getElementsByTagName('option'), t, o;#}
+{#        if (e) {#}
+{#            e.preventDefault();#}
+{#            t = e.target;#}
+{#        } else if (window.event) {#}
+{#            window.event.returnValue = false;#}
+{#            t = window.event.srcElement;#}
+{#        } else return;#}
+{#        t = e.target || window.event.srcElement;#}
+{#        if (t.className == 'selected') t.className = '';#}
+{#        else t.className = 'selected';#}
+{#        for (var i = 0, j = opts.length; i < j; i++) {#}
+{#            if (opts[i].className == 'selected') opts[i].selected = true;#}
+{#            else opts[i].selected = false;#}
+{#        }#}
+{#    }#}
+{##}
+{#    window.onload = init;#}
+{#-->#}
+{##}
+{#</script>#}
 </body>
 </html> 
