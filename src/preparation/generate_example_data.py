@@ -1,5 +1,5 @@
 """
-To train the word embedding and to train the SIF model, we need to have a huge amount of unlabeled data available.
+To train the word embedding and to train the Sent2Vec model, we need to have a huge amount of unlabeled data available.
 For our this toy example, we use unlabeled data from the SemEval 2017 Question-Question similarity challenge(Task3)
 """
 

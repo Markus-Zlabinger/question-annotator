@@ -4,6 +4,8 @@ from src.data_io import load_questions, load_annotations
 import csv
 import config
 import random
+import os
+import numpy as np
 #
 # app.debug = True
 import pickle
@@ -12,12 +14,13 @@ app = Flask(__name__)
 
 # Load Global Variables
 QUESTION_POOL = None
-QUESTION_POOL_ANNOT=None
+QUESTION_POOL_ANNOT = None
 SIM_MATRIX = None
-CSVpath = "annot.csv"
-
+CSVpath = "./annotations/annotations.csv"
 
 """ Methods """
+
+
 # Returns a list of similar questions (neighbors) with respect to a query question
 def get_ranked_neighbors(rowidx):
     global SIM_MATRIX
@@ -33,11 +36,12 @@ def get_ranked_neighbors(rowidx):
     ranked_neighbors = sorted(ranked_neighbors, key=lambda x: x[1], reverse=True)
     return ranked_neighbors
 
+
 def get_random_candidate():
     if len(QUESTION_POOL) == 0:
         return (-1, "All Questions are Annotated!")
     random.seed(42)
-    tmp = [(x,y) for x,y in QUESTION_POOL.items()]
+    tmp = [(x, y) for x, y in QUESTION_POOL.items()]
     random.shuffle(tmp)
     return tmp[0]
 
@@ -52,19 +56,25 @@ def remove_questions_from_pool(toremove):
 
 
 """ Web Service Code """
+
+
 @app.before_first_request
 def initialize():
     print("INITIALIZE")
     global ALREADY_LABELED, QUESTION_POOL, QUESTION_POOL_ANNOT, SIM_MATRIX, CSVpath
     ALREADY_LABELED = set()
     QUESTION_POOL = load_questions(config.PATH_QUESTIONS)  # [(QID1, QuestionText1), ..., (QIDN, QuestionTextN)]
-    SIM_MATRIX = pickle.load(open(config.PATH_SIM_MATRIX, "rb"))
+    SIM_MATRIX = np.loadtxt(config.PATH_SIM_MATRIX)
     assert len(QUESTION_POOL) == SIM_MATRIX.shape[0] == SIM_MATRIX.shape[1]
 
-    #schauen was bereits in file anotiert ist und aus Pool löschen
+    # schauen was bereits in file anotiert ist und aus Pool löschen
     annotated = list()
     QUESTION_POOL_ANNOT = dict()
-    with open(CSVpath, mode="r", encoding="utf-8") as f:
+
+    if not os.path.exists(os.path.dirname(CSVpath)):
+        os.makedirs(os.path.dirname(CSVpath))
+
+    with open(CSVpath, mode="a+", encoding="utf-8") as f:
         s = csv.reader(f, delimiter=",")
         # print(list(s)[0][2])
         # for idn, label, querry in s:
@@ -74,7 +84,7 @@ def initialize():
                 if num == idn[0] and line == idn[2]:
                     # print("schon enthalten: %s", num, line)
                     annotated.append(num)
-                    QUESTION_POOL_ANNOT[idn[0]]=idn[1], idn[2]
+                    QUESTION_POOL_ANNOT[idn[0]] = idn[1], idn[2]
     print("already annotated in file:", annotated)
     # print(QUESTION_POOL.items())
     print("############################")
@@ -83,13 +93,15 @@ def initialize():
     # Remove questions that were already annotated in file
     remove_questions_from_pool(set(annotated))
 
+
 @app.route('/')
 def index():
     candidate = get_random_candidate()
     return render_template('interface.html', name="Startpage", questions=QUESTION_POOL.items(), annotated_data=QUESTION_POOL_ANNOT.items())
     # annotated_data=QUESTION_POOL_ANNOT.items()
 
-@app.route('/saveannotation',methods = ['POST', 'GET'])
+
+@app.route('/saveannotation', methods=['POST', 'GET'])
 def saveannotation():
     global QUESTION_POOL
     global QUESTION_POOL_ANNOT
@@ -125,7 +137,8 @@ def saveannotation():
         print(e)
     return index()
 
-@app.route('/relabel',methods = ['POST', 'GET'])
+
+@app.route('/relabel', methods=['POST', 'GET'])
 def relabel():
     global QUESTION_POOL_ANNOT
     global CSVpath
@@ -134,7 +147,7 @@ def relabel():
         annotation_ids = request.form.getlist('annotationlist')
         for qid_html in annotation_ids:
             # print(qid_html)
-            #for Qestion-Id, label, text
+            # for Qestion-Id, label, text
             for qid, question in QUESTION_POOL_ANNOT.items():
                 # print(qid, qid_html, question)
                 if qid_html == qid:
@@ -154,12 +167,14 @@ def relabel():
         print(e)
     return index()
 
+
 @app.route('/test')
 def test():
     print("hallo")
     return "<h1>hallo</h1>"
 
-@app.route('/reset', methods = ['POST', 'GET'])
+
+@app.route('/reset', methods=['POST', 'GET'])
 def reset():
     global CSVpath
     # reset the Anotation File
@@ -169,9 +184,6 @@ def reset():
     initialize()
     return index()
 
+
 if __name__ == '__main__':
-    print("run1")
-    # initialize()
-    print("run2")
     app.run()
-    print("run3")
