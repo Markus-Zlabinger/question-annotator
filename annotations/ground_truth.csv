@@ -1,0 +1,51 @@
+group,label,qid,question
+0,id74,21,can't remember password and login
+0,id74,15,password forgotten
+0,id74,20,lost password
+0,id74,22,what to do if password forgotten
+0,id74,17,where can i find my login credentials
+0,id74,19,request new login credentials
+0,id74,18,"login details lost, where to get new ones?"
+0,id74,16,password cannot remember
+1,id43,43,Can I see my e-mails online??
+1,id43,40,emails online
+1,id43,45,e-mail online
+1,id43,46,online mails
+1,id43,39,Online service for emails
+1,id43,41,webmail
+1,id43,42,web service for mails
+1,id43,44,Url for the e-mail webservice
+1,id43,38,Where can I get my e-mails online?
+2,id131,34,Why is my mobile phone not working
+2,id131,33,Since yesterday my phone has stopped working
+2,id131,32,cannot start phone
+2,id131,31,phone dead
+2,id131,35,HELP phone start fails
+2,id131,30,My phone is not working
+3,id124,12,Buy mobile phone online
+3,id124,14,Can you recommend shopfs for mobile phones?
+3,id124,9,Where best buy phone
+3,id124,10,Place for new phones
+3,id124,13,Where should I buy a new phone???
+3,id124,11,Mobile phone shopping
+4,id14,24,customer over years any offers
+4,id14,25,special offers
+4,id14,29,do you have an overview of offers
+4,id14,27,I'm a loyal customer can you give me stuff for free
+4,id14,28,can i get a special offer for a phone
+4,id14,26,special bonus program
+4,id14,23,do you have any special offers for long time customer
+5,id1211,8,Thief has taken phone
+5,id1211,4,My mobile phone is gone
+5,id1211,3,I've lost my phone how get back
+5,id1211,6,Mobilephone stolen
+5,id1211,5,What to do if mobile is lost?
+5,id1211,7,Someone has taken my phone out of my pocket yesterday
+6,id92,49,roaming per country
+6,id92,48,roaming overview prices
+6,id92,47,How much do I pay for roaming
+7,id131,37,dark display and no power
+7,id131,36,the power button does not work anymore
+8,id325,1,Greeting
+8,id325,2,I wish you a great day
+8,id325,0,Hello my friend

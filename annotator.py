@@ -3,6 +3,7 @@ import random
 import pandas as pd
 import os
 import config
+from collections import Counter
 
 
 class Annotator:
@@ -52,7 +53,11 @@ class Annotator:
         ranked_neighbors = sorted(ranked_neighbors, key=lambda x: x[1], reverse=True)
         return ranked_neighbors
 
-    def get_similar_questions(self, candidate_qid):
+    def get_similar_questions(self, candidate):
+        # Case: All questions are already annotated
+        if candidate is None:
+            return []
+        candidate_qid = candidate["qid"]
         questionlist = []
         ranked_neighbors = self.get_ranked_neighbors(candidate_qid)
         for qid, similarity in ranked_neighbors:
@@ -69,14 +74,6 @@ class Annotator:
             return self.remove_questions_from_pool(toremove_qids)
         return questions
 
-    def get_random_candidate(self):
-        if len(self.question_pool) == 0:
-            return None
-        random.seed(42)
-        tmp = [x for x, _ in self.question_pool.items()]
-        random.shuffle(tmp)
-        return self.get_question(tmp[0])
-
     def remove_questions_from_pool(self, toremove_qids):
         toremove_qids = set(toremove_qids)
         questionpool_new = dict()
@@ -91,6 +88,12 @@ class Annotator:
         return pd.read_csv(config.PATH_ANNOTATION_FILE)
 
     def save_annotations(self, label, question_ids):
+        # Check if IDs were already annotated
+        question_ids_clean = []
+        for qid in question_ids:
+            if qid in self.question_pool:
+                question_ids_clean.append(qid)
+        question_ids = question_ids_clean
         # Prepare Annotations
         annotations = []
         print(question_ids)
@@ -120,3 +123,49 @@ class Annotator:
             "qid": qid,
             "question": self.questions[qid],
         }
+
+    def get_random_candidate(self):
+        if len(self.question_pool) == 0:
+            return None
+        random.seed(42)
+        tmp = [x for x, _ in self.question_pool.items()]
+        random.shuffle(tmp)
+        return self.get_question(tmp[0])
+
+    def get_next_candidate(self):
+        dmatrix = self.sim_matrix
+        all_distances = []
+        for rowidx, row in enumerate(dmatrix):
+            if rowidx not in self.question_pool:
+                continue
+            for colidx, d in enumerate(row):
+                if colidx not in self.question_pool:
+                    continue
+                if rowidx == colidx:
+                    continue
+                if rowidx > colidx:
+                    continue
+                idx1 = min(colidx, rowidx)
+                idx2 = max(colidx, rowidx)
+                all_distances.append((idx1, idx2, d))
+
+        if len(all_distances) == 0:
+            # In case that only one question remains to annotate
+            if len(self.question_pool) == 1:
+                return self.get_question(list(self.question_pool.keys())[0])
+            return None
+
+        # Sort all_distances ascending
+        tmp = sorted(all_distances, key=lambda x: x[2], reverse=True)
+        highest_similarity = tmp[0][2]  # this is the minimum distance
+
+        # When multiple question pairs have the 'highest_similarty' take the one that occurs more often
+        count = Counter()
+        for idx1, idx2, d in tmp:
+            if d != highest_similarity:
+                break  # We can break as soon as the first distance is smaller since we sorted ascending
+            count[idx1] += 1
+            count[idx2] += 1
+
+        representative_idx = count.most_common(1)[0][0]
+        return self.get_question(representative_idx)

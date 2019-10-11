@@ -1,4 +1,3 @@
-import defaultsettings
 from flask import Flask, redirect, url_for, request, render_template
 from annotator import Annotator
 from answers import Answers
@@ -18,8 +17,8 @@ def initialize():
 @app.route("/")
 def index():
     global ANN, ANS
-    candidate = ANN.get_random_candidate()
-    ranked_questions = ANN.get_similar_questions(candidate["qid"])
+    candidate = ANN.get_next_candidate()
+    ranked_questions = ANN.get_similar_questions(candidate)
     answers = ANS.answers
     return render_template("interface.html", name="Startpage", questions=ranked_questions, annotated_data=dict(), candidate=candidate, answers=answers)
 
@@ -50,6 +49,8 @@ def reset():
     ANN = ANN.reset()
     ANS = Answers()
     return index()
+
+
 
 """ Methods """
 

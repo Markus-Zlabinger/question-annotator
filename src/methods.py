@@ -106,13 +106,11 @@ class Sif:
         else:
             raise Exception("PCs were already computed!")
 
+    """
+    NOTE: Code taken from the official SIF implementation
+    """
     def remove_principal_component(self, mat, n_components=1):
-        """
-        NOTE: Code taken from the official SIF implementation
-        :param mat: n x m matrix
-        :param n_components: number of components to remove
-        :return: n x m matrix in which the projections of the first n_components are removed
-        """
+
 
         # Remove principal component
         if self.pc is None:

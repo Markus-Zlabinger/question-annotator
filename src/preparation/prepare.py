@@ -11,17 +11,27 @@ import importlib
 from gensim.models import FastText
 import config
 import src.methods as methods
-from src.data_io import load_questions, load_training_data
+# from src.data_io import load_questions, load_training_data
 from gensim.parsing.preprocessing import preprocess_documents
 import pickle
+import data_io
+
+def load_training_data(path):
+    corpus = []
+    with open(path, mode="r", encoding="utf-8") as f:
+        for line in f:
+            text = line.strip()
+            if text:  # Ignore empty lines
+                corpus.append(text)
+    return corpus
 
 # Load raw text corpus that is used to train the word embedding model and the SIF model
 training = load_training_data(config.PATH_TRAINING_QUESTIONS)
 training_tokenized = preprocess_documents(training)
 
 # Load questions that you want to annotate
-questions = load_questions(config.PATH_QUESTIONS)
-questions_tokenized = preprocess_documents(questions)
+questions = data_io.get_questions(config.PATH_QUESTIONS)
+questions_tokenized = preprocess_documents(list(questions.values()))
 
 
 # Create FastText embedding using Gensim
@@ -54,7 +64,7 @@ def get_n_neighbors(rowidx, dmatrix, already_done=set(), n=15):
 from sklearn.metrics.pairwise import cosine_similarity
 sim_matrix = cosine_similarity(text_embeddings)
 ##
-rowidx = 7
+rowidx = 37
 neighbors = get_n_neighbors(rowidx=rowidx, dmatrix=sim_matrix)
 print("===============================")
 print("Candidate: {}".format(questions[rowidx]), questions_tokenized[rowidx])

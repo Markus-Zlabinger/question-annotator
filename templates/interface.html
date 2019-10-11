@@ -33,7 +33,7 @@
             <select name="questionlist" size="10" multiple>
                 {% for question in questions %}
                     {% if qid != candidate["qid"] %}
-                        <option value="{{ question["qid"] }}">{{ question["qid"] }}: {{ question["question"] }}</option>
+                        <option value="{{ question["qid"] }}">{{ question["qid"] }} {{ "{:.2f}".format(question["similarity"]) }}: {{ question["question"] }}</option>
                     {% endif %}
                 {% endfor %}
             </select>
