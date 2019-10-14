@@ -1,26 +1,50 @@
 <template>
   <div>
     <h1>Annotation</h1>
-    <b-container class="bv-example-row">
+    <b-container>
       <b-row class="justify-content-md-center">
         <b-col sm>
-            <span>
-                <b>Candidate Question: </b>
-                {{candidate.question}}
-            </span>
+          <span>
+            <b>Candidate Question:</b>
+            {{candidate.question}}
+          </span>
         </b-col>
       </b-row>
       <b-row class="justify-content-md-center">
-        <b-col sm>
-            <label class="typo__label">Select similar question(s):</label>
-            <multiselect v-model="selected_questions" :options="ranked_questions" :multiple="true" :close-on-select="false" :clear-on-select="false" :preserve-search="true" placeholder="Pick some" label="question" track-by="question" :preselect-first="false" selectLabel="" selectedLabel="" /> 
-        </b-col>
-      </b-row>
-      <b-row class="justify-content-md-center">
-        <b-col sm>
-            <label class="typo__label">Select/Add answer(s):</label>
-            <multiselect v-model="selected_answers" tag-placeholder="Add this as new answer" placeholder="Search or add an answer" label="answer" track-by="answer" :options="answers" :multiple="true" :taggable="true" @tag="addAnswer" :preselect-first="false" :close-on-select="false" :clear-on-select="false" selectLabel="" selectedLabel="" />
-        </b-col>
+        <b-card-group deck>
+          <b-card header="Select similar question(s)">
+            <b-list-group>
+              <b-list-group-item v-for="(question, index) in ranked_questions" :key="index" @click="question_clicked(index)" :class="{'active': selected_questions[index]}" button>
+                <div class="question">{{question.question}}</div>
+                <div class="similarity">{{question.similarity}}</div>
+              </b-list-group-item>
+            </b-list-group>
+          </b-card>
+          <b-card header="Select answer(s)">
+            <b-list-group>
+            <b-list-group-item>
+                <label for="search_answers"><b>Search: </b></label>
+                <input id="search_answers" type="text"  v-model="search_answers">
+            </b-list-group-item>
+              <b-list-group-item v-for="(answer, index) in filtered_answers" :key="index" @click="answer_clicked(index)" :class="{'active': selected_answers[index]}" button>
+                <div class="answer">
+                  <b>{{answer.aid}}</b>
+                  {{answer.answer}}
+                </div>
+              </b-list-group-item>
+              <b-list-group-item>
+                  <div class="add_news_answer">
+                    <p>Add new answer </p>
+                    <label for="add_answer_title"><b>title: </b></label>
+                    <b-form-input id="add_answer_title" type="text"  v-model="add_answer_title"></b-form-input>
+                    <label for="add_answer_text"><b>text: </b></label>
+                    <b-form-input id="add_answer_text" type="text"  v-model="add_answer_text"></b-form-input>
+                    <b-button class="add_answer_button" block variant="primary" @click="add_new_answer">Add new answer</b-button>
+                  </div>
+              </b-list-group-item>
+            </b-list-group>
+          </b-card>
+        </b-card-group>
       </b-row>
     </b-container>
   </div>
@@ -29,7 +53,7 @@
 <script>
 import axios from "axios";
 import Multiselect from "vue-multiselect";
-import uuidv4 from 'uuid/v4';
+import uuidv4 from "uuid/v4";
 
 export default {
   components: {
@@ -41,17 +65,25 @@ export default {
       ranked_questions: [],
       selected_questions: [],
       answers: [],
-      selected_answers: [],
+      search_answers: '',
+      selected_answers: [], 
+      add_answer_title: '',
+      add_answer_text: ''
     };
   },
   methods: {
-   addAnswer (newAnswer) {
-      const answer = {
-        aid: uuidv4(),
-        answer: newAnswer
-      }
-      this.answers.push(answer)
-      this.selected_answers.push(answer)
+    question_clicked(index) {
+        this.$set(this.selected_questions, index, !this.selected_questions[index])
+    },
+    answer_clicked(index) {
+        this.$set(this.selected_answers, index, !this.selected_answers[index])
+    }, 
+    add_new_answer() {
+        if(add_answer_title=="" | add_answer_text=="") {
+            alert("New answer title or text missing!");
+        }
+        this.answers.push({aid: uuidv4(), answer: add_answer_title + ": " + add_answer_text});
+        this.selected_answers.puhs(true);
     }
   },
   mounted() {
@@ -67,12 +99,30 @@ export default {
       .catch(e => {
         console.log(e);
       });
+  }, 
+  computed: {
+      filtered_answers() {
+      return this.answers.filter(answer => {
+        return answer.answer.toLowerCase().includes(this.search_answers.toLowerCase())
+      })
+    }
   }
 };
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
-<style>
-.multiselect__option {
-    white-space: normal !important;
+<style scoped>
+.similarity {
+  float: right;
+}
+.question {
+  float: left;
+}
+.answer {
+    text-align: left;
+}
+.add_news_answer {
+    text-align: left;
+}
+.add_answer_button {
+    margin-top: 10px;
 }
 </style>
