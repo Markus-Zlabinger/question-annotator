@@ -1,8 +1,10 @@
-from flask import Flask, redirect, url_for, request, render_template
+from flask import Flask, redirect, url_for, request, render_template, jsonify
+from flask_cors import CORS
 from annotator import Annotator
 from answers import Answers
 
 app = Flask(__name__)
+CORS(app)
 
 ANN = None
 ANS = None
@@ -21,6 +23,20 @@ def index():
     ranked_questions = ANN.get_similar_questions(candidate)
     answers = ANS.answers
     return render_template("interface.html", name="Startpage", questions=ranked_questions, annotated_data=dict(), candidate=candidate, answers=answers)
+
+@app.route("/candidate")
+def candidate():
+    global ANN, ANS
+    candidate = ANN.get_next_candidate()
+    ranked_questions = ANN.get_similar_questions(candidate)
+    answers = ANS.answers
+    return jsonify({
+            "candidate": candidate,
+            "ranked_questions": ranked_questions,
+            "answers": answers
+        })
+
+
 
 
 @app.route("/saveannotation", methods=["POST", "GET"])
