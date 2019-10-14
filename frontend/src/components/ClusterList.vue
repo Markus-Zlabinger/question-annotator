@@ -2,14 +2,14 @@
   <div role="tablist">
     <b-card v-for="(cluster, index) in clusters" v-bind:key="index" no-body class="mb-1">
       <b-card-header header-tag="header" class="p-1" role="tab">
-        <b-button block href="#" v-b-toggle="'accordion-' + index" variant="info">Cluster {{cluster.cluster}}</b-button>
+        <b-button block href="#" v-b-toggle="'accordion-' + index" variant="info">{{cluster.name}}</b-button>
       </b-card-header>
       <b-collapse :id="getAccordionID(index)" accordion="my-accordion" role="tabpanel">
         <b-card-body>
           <b-card-text>
               <ul class="questionList">
                 <li class="question" v-for="(question, index) in cluster.questions" :key=index>
-                    <b>Q-{{index}}</b>: {{ question }}
+                    <b>Q-{{index}}</b>: {{ question.text }}
                 </li>
               </ul>
           </b-card-text>
@@ -26,7 +26,7 @@ export default {
   data() {
     return {
        clusters: [
-        /* {
+        {
           name: "Cluster 1",
           questions: [
             {
@@ -59,7 +59,7 @@ export default {
               text: "WTF?"
             }
           ]
-        } */
+        }
       ]
     }; 
   },
@@ -69,7 +69,7 @@ export default {
     }
   }, 
   mounted() {
-    const url = "http://127.0.0.1:5000/getclusters";
+    /* const url = "http://127.0.0.1:5000/getclusters";
     axios
     .get(url)
     .then(response => {
@@ -78,7 +78,7 @@ export default {
     })
     .catch(e => {
       console.log(e);
-    })
+    }) */
   }
 };
 </script>

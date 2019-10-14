@@ -9,10 +9,10 @@ class Answers:
         self.initialize()
 
     def initialize(self):
-        answers = dict()
+        answers = []
         df = pd.read_csv(config.PATH_ANSWERS)
         for aid, answer in zip(df["aid"], df["answer"]):
-            answers[aid] = answer
+            answers.append({"aid": aid, "answer": answer})#[aid] = answer
         self.answers = answers
 
     def check_valid_label(self, label):
