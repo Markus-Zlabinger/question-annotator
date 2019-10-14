@@ -55,7 +55,7 @@
             <h2>Answer Catalog</h2>
             <select name="labels" size="20" multiple style="width: 400px">
                 {% for aid, answer in answers.items() %}
-                    <option value="{{ aid }}">{{ aid }}: {{ answer }}</option>
+                    <option value="{{ aid }}">{{ aid }}: {{ answer["answer-short"] }}: {{ answer["answer"] }} </option>
                 {% endfor %}
             </select>
             <br>

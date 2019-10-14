@@ -11,8 +11,8 @@ class Answers:
     def initialize(self):
         answers = dict()
         df = pd.read_csv(config.PATH_ANSWERS)
-        for aid, answer in zip(df["aid"], df["answer"]):
-            answers[aid] = answer
+        for aid, (answershort, answer) in enumerate(zip(df["answer-short"], df["answer"])):
+            answers[aid] = {"answer-short": answershort, "answer": answer}
         self.answers = answers
 
     def check_valid_label(self, label):
