@@ -2,61 +2,72 @@ from flask import Flask, redirect, url_for, request, render_template, jsonify
 from flask_cors import CORS
 from annotator import Annotator
 from answers import Answers
+from analysis import Analysis
 
 app = Flask(__name__)
 CORS(app)
 
-ANN = None
-ANS = None
+annotator = None
+answer_catalog = None
+analysis = None
 
 @app.before_first_request
 def initialize():
-    global ANN, ANS
-    ANN = Annotator()
-    ANS = Answers()
+    global annotator, answer_catalog, analysis
+    annotator = Annotator()
+    answer_catalog = Answers()
+    analysis = Analysis()
 
 
 @app.route("/")
 def index():
-    global ANN, ANS
-    candidate = ANN.get_next_candidate()
-    ranked_questions = ANN.get_similar_questions(candidate)
-    # TODO: Remove improvised code
-    if len(ranked_questions) > 0:
-        ranked_questions[0]["preselect"] = True
-
-    answers = ANS.answers
+    global annotator, answer_catalog
+    candidate = annotator.get_next_candidate()
+    ranked_questions = annotator.get_similar_questions(candidate)
+    answers = answer_catalog.answers
     return render_template("interface.html", name="Startpage", questions=ranked_questions, annotated_data=dict(), candidate=candidate, answers=answers)
 
 @app.route("/candidate")
 def candidate():
-    global ANN, ANS
-    candidate = ANN.get_next_candidate()
-    ranked_questions = ANN.get_similar_questions(candidate)
-    answers = ANS.answers
+    global annotator, answer_catalog
+    candidate = annotator.get_next_candidate()
+    ranked_questions = annotator.get_similar_questions(candidate)
+    answers = answer_catalog.answers
+
+    # TODO: Remove improvised code
+    if len(ranked_questions) > 0:
+        ranked_questions[0]["preselect"] = True
+
     return jsonify({
             "candidate": candidate,
             "ranked_questions": ranked_questions,
             "answers": answers
         })
 
-
+@app.route("/getclusters")
+def getclusters():
+    clusters = analysis.get_clusters()
+    # print(clusters)
+    # return jsonify(clusters)
+    return jsonify({
+        "clusters": clusters
+    })
 
 
 @app.route("/saveannotation", methods=["POST", "GET"])
 def saveannotation():
-    global ANN, ANS
+    global annotator, answer_catalog
     try:
         """ Save Annotations to CSV File """
         label = request.form.get("labels", type=str)
-        if ANS.check_valid_label(label):
+        if answer_catalog.check_valid_label(label):
             question_ids = request.form.getlist("questionlist", type=int)
             candidate_id = request.form.get("candidate", type=int)
             question_ids.append(candidate_id)
-            ANN.save_annotations(label, question_ids)
+            annotator.save_annotations(label, question_ids)
 
             """ Remove Annotations from Questions Pool """
-            ANN.remove_questions_from_pool(question_ids)
+            annotator.remove_questions_from_pool(question_ids)
 
     except Exception as e:
         print("Something went wrong!")
@@ -65,9 +76,9 @@ def saveannotation():
 
 @app.route("/reset", methods=["POST", "GET"])
 def reset():
-    global ANN, ANS
-    ANN = ANN.reset()
-    ANS = Answers()
+    global annotator, answer_catalog
+    annotator = annotator.reset()
+    answer_catalog = Answers()
     return index()
 
 
