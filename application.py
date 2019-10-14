@@ -21,6 +21,10 @@ def index():
     global ANN, ANS
     candidate = ANN.get_next_candidate()
     ranked_questions = ANN.get_similar_questions(candidate)
+    # TODO: Remove improvised code
+    if len(ranked_questions) > 0:
+        ranked_questions[0]["preselect"] = True
+
     answers = ANS.answers
     return render_template("interface.html", name="Startpage", questions=ranked_questions, annotated_data=dict(), candidate=candidate, answers=answers)
 
