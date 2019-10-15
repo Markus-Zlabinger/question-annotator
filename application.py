@@ -54,7 +54,7 @@ def getclusters():
     )
 
 
-@app.route("/saveannotation", methods=["POST", "GET"])
+@app.route("/saveannotation", methods=["POST"])
 def saveannotation():
     global annotator, answer_catalog
     try:
@@ -75,7 +75,7 @@ def saveannotation():
     except Exception as e:
         print("Something went wrong!")
         print(e)
-    return index()
+    return candidate()
 
 
 @app.route("/create_new_answer", methods=["POST"])

@@ -113,9 +113,17 @@ export default {
         }
     }, 
     save_annotation() {
+        if(this.selected_answer == -999 || isNaN(this.selected_answer)) {
+          alert("Please select an Answer")
+          window.scrollTo(0,0);
+          return;
+        }
         const url = "http://127.0.0.1:5000/saveannotation";
         const formData = new FormData();
         formData.append("labels", this.selected_answer);
+        this.selected_questions = this.ranked_questions
+                                      .filter((question, i) => this.active_questions[i])
+                                      .map(question => question.qid);                          
         this.selected_questions.forEach((question) => {
             formData.append('questionlist[]', question);
         });
@@ -124,6 +132,17 @@ export default {
           .post(url, formData)
           .then(response => {
               console.log(response.data)
+              this.candidate = response.data.candidate;
+              this.ranked_questions = response.data.ranked_questions;
+              this.answers = response.data.answers;
+              this.selected_answers = Array.apply(null, Array(this.answers.length)).map(function () {})
+              this.active_questions = this.ranked_questions.map(question => {
+                return question.preselect
+              })
+              this.search_answers = '';
+              this.selected_answer= -999;
+              alert("Annotation Saved!");
+              window.scrollTo(0,0);
           })
           .catch(e => {
               alert("Something went wrong! Please try again later.")
