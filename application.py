@@ -59,10 +59,13 @@ def saveannotation():
     global annotator, answer_catalog
     try:
         """ Save Annotations to CSV File """
-        label = request.form.get("labels", type=str)
+        label = request.form.get("labels", type=int)
+        question_ids = request.form.getlist("questionlist[]", type=int)
+        candidate_id = request.form.get("candidate", type=int)
+        print(candidate_id)
+        print(question_ids)
+        print(label)
         if answer_catalog.check_valid_label(label):
-            question_ids = request.form.getlist("questionlist", type=int)
-            candidate_id = request.form.get("candidate", type=int)
             question_ids.append(candidate_id)
             annotator.save_annotations(label, question_ids)
 

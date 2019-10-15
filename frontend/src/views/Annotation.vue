@@ -14,7 +14,7 @@
         <b-card-group deck>
           <b-card header="Select similar question(s)">
             <b-list-group>
-              <b-list-group-item v-for="(question, index) in ranked_questions" :key="index" @click="question_clicked(index)" :class="{'active': selected_questions[index]}" button>
+              <b-list-group-item v-for="(question, index) in ranked_questions" :key="index" @click="question_clicked(question, index)" :class="{'active': active_questions[index] || question.preselect}" button>
                 <div class="question">{{question.question}}</div>
                 <div class="similarity">similarity: {{question.similarity.toFixed(2)}}</div>
               </b-list-group-item>
@@ -46,6 +46,13 @@
           </b-card>
         </b-card-group>
       </b-row>
+      <b-row class="justify-content-md-center">
+          <b-col sm>
+            <div class="submit_button">
+                <b-button variant="primary" size="lg" @click="save_annotation">Save Annotation</b-button>
+            </div> 
+          </b-col>
+      </b-row>
     </b-container>
   </div>
 </template>
@@ -63,6 +70,7 @@ export default {
     return {
       candidate: {},
       ranked_questions: [],
+      active_questions: [],
       selected_questions: [],
       answers: [],
       search_answers: '',
@@ -73,8 +81,8 @@ export default {
     };
   },
   methods: {
-    question_clicked(index) {
-        this.$set(this.selected_questions, index, !this.selected_questions[index])
+    question_clicked(question, index) {
+        this.$set(this.active_questions, index, !this.active_questions[index])
     },
     answer_clicked(index) {
         //this.$set(this.selected_answers, index, !this.selected_answers[index])
@@ -103,6 +111,23 @@ export default {
                   alert("Something went wrong! Please try again later.")
               })
         }
+    }, 
+    save_annotation() {
+        const url = "http://127.0.0.1:5000/saveannotation";
+        const formData = new FormData();
+        formData.append("labels", this.selected_answer);
+        this.selected_questions.forEach((question) => {
+            formData.append('questionlist[]', question);
+        });
+        formData.append("candidate", this.candidate.qid);
+        axios
+          .post(url, formData)
+          .then(response => {
+              console.log(response.data)
+          })
+          .catch(e => {
+              alert("Something went wrong! Please try again later.")
+          })
     }
   },
   mounted() {
@@ -144,5 +169,9 @@ export default {
 }
 .add_answer_button {
     margin-top: 10px;
+}
+.submit_button {
+    float: right !important;
+    margin-top: 16px;
 }
 </style>
