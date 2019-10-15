@@ -49,9 +49,9 @@ def getclusters():
     clusters = analysis.get_clusters()
     # print(clusters)
     # return jsonify(clusters)
-    return jsonify({
-        "clusters": clusters
-    })
+    return jsonify(
+        clusters
+    )
 
 
 @app.route("/saveannotation", methods=["POST", "GET"])
