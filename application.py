@@ -74,10 +74,17 @@ def saveannotation():
         print(e)
     return index()
 
-# TODO Create a new Answer by post request
+
 @app.route("/create_new_answer", methods=["POST"])
 def create_new_answer():
-    pass
+    answer = request.form.get("answer", type=str)
+    answer_short = request.form.get("answer-short", type=str)
+    print(answer, answer_short)
+    # TODO Create the new answer and return the ID
+    aid = 123456
+    return jsonify({
+        "aid": aid
+    })
 
 
 @app.route("/reset", methods=["POST", "GET"])

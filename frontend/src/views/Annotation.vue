@@ -83,10 +83,22 @@ export default {
             alert("Answer-short and/or answer missing!");
         }
         else {
-            this.answers.push({aid: this.answers.length, answer: this.add_answer_short + ": " + this.add_answer_long});
-            this.selected_answers.push(true);
-            this.add_answer_short = "";
-            this.add_answer_long = "";
+            const url = "http://127.0.0.1:5000/create_new_answer";
+            const formData = new FormData();
+            formData.append("answer", this.add_answer_long);
+            formData.append("answer-short", this.add_answer_short);
+            axios
+              .post(url, formData)
+              .then(response => {
+                console.log(response.data);
+                this.answers.push({aid: response.data.aid, answer: this.add_answer_short + ": " + this.add_answer_long});
+                this.selected_answers.push(true);
+                this.add_answer_short = "";
+                this.add_answer_long = "";
+              })
+              .catch(e => {
+                  alert("Something went wrong! Please try again later.")
+              })
         }
     }
   },
