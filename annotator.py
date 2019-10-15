@@ -122,6 +122,7 @@ class Annotator:
         return {
             "qid": qid,
             "question": self.questions[qid],
+            "preselect": False # TODO: make dynamic
         }
 
     def get_random_candidate(self):
