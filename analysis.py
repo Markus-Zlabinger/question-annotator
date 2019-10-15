@@ -37,9 +37,31 @@ class Analysis:
         self.initialize()
 
     def initialize(self):
-        self.questions = data_io.get_questions(config.PATH_QUESTIONS)
+        self.questions = list(data_io.get_questions(config.PATH_QUESTIONS).values())
         self.questions_vectors = data_io.get_question_vectors(config.PATH_QUESTIONS_VECTORS)
 
 
-    def get_clusters(self, clustering_method):
+    def get_clusters(self):
         clusterer = OPTICS(metric="cosine", min_samples=3, algorithm="brute")
+        clusterer.fit(self.questions_vectors)
+        return self.prepare_clusters(clusterer.labels_)
+
+    def prepare_clusters(self, cluster_labels):
+        cluster_results = []
+        questions = np.array(self.questions)
+        score = 0.0
+        # cluster_labels = np.array(cluster_labels)
+        # clusters = set(cluster_labels)
+        for cluster in set(cluster_labels):
+            cluster_questions = questions[cluster_labels == cluster]
+            cluster_result = {
+                "cluster": int(cluster),
+                "questions": list(cluster_questions),
+                "representive": "TODO",
+                "score": score
+            }
+            score += 1.0
+            cluster_results.append(cluster_result)
+        cluster_results = sorted(cluster_results, key = lambda x: x["score"], reverse=True)
+        return cluster_results
+
