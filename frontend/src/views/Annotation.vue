@@ -14,7 +14,7 @@
         <b-card-group deck>
           <b-card header="Select similar question(s)">
             <b-list-group>
-              <b-list-group-item v-for="(question, index) in ranked_questions" :key="index" @click="question_clicked(question, index)" :class="{'active': active_questions[index] || question.preselect}" button>
+              <b-list-group-item v-for="(question, index) in ranked_questions" :key="index" @click="question_clicked(question, index)" :class="{'active': active_questions[index]}" button>
                 <div class="question">{{question.question}}</div>
                 <div class="similarity">similarity: {{question.similarity.toFixed(2)}}</div>
               </b-list-group-item>
@@ -140,6 +140,9 @@ export default {
         this.ranked_questions = response.data.ranked_questions;
         this.answers = response.data.answers;
         this.selected_answers = Array.apply(null, Array(this.answers.length)).map(function () {})
+        this.active_questions = this.ranked_questions.map(question => {
+          return question.preselect
+        })
       })
       .catch(e => {
         console.log(e);
