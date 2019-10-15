@@ -16,7 +16,7 @@
             <b-list-group>
               <b-list-group-item v-for="(question, index) in ranked_questions" :key="index" @click="question_clicked(index)" :class="{'active': selected_questions[index]}" button>
                 <div class="question">{{question.question}}</div>
-                <div class="similarity">{{question.similarity}}</div>
+                <div class="similarity">similarity: {{question.similarity.toFixed(2)}}</div>
               </b-list-group-item>
             </b-list-group>
           </b-card>
@@ -29,16 +29,16 @@
               <b-list-group-item v-for="(answer, index) in filtered_answers" :key="index" @click="answer_clicked(index)" :class="{'active': selected_answers[index]}" button>
                 <div class="answer">
                   <b>{{answer.aid}}</b>
-                  {{answer.answer}}
+                  {{answer["answer-short"]}}: {{answer.answer}}
                 </div>
               </b-list-group-item>
               <b-list-group-item>
                   <div class="add_news_answer">
                     <p>Add new answer </p>
-                    <label for="add_answer_title"><b>title: </b></label>
-                    <b-form-input id="add_answer_title" type="text"  v-model="add_answer_title"></b-form-input>
-                    <label for="add_answer_text"><b>text: </b></label>
-                    <b-form-input id="add_answer_text" type="text"  v-model="add_answer_text"></b-form-input>
+                    <label for="add_answer_title"><b>Answer-Short: </b></label>
+                    <b-form-input id="add_answer_title" type="text"  v-model="add_answer_short"></b-form-input>
+                    <label for="add_answer_text"><b>Answer: </b></label>
+                    <b-form-input id="add_answer_text" type="text"  v-model="add_answer_long"></b-form-input>
                     <b-button class="add_answer_button" block variant="primary" @click="add_new_answer">Add new answer</b-button>
                   </div>
               </b-list-group-item>
@@ -67,8 +67,8 @@ export default {
       answers: [],
       search_answers: '',
       selected_answers: [], 
-      add_answer_title: '',
-      add_answer_text: ''
+      add_answer_short: '',
+      add_answer_long: ''
     };
   },
   methods: {
@@ -79,11 +79,15 @@ export default {
         this.$set(this.selected_answers, index, !this.selected_answers[index])
     }, 
     add_new_answer() {
-        if(add_answer_title=="" | add_answer_text=="") {
-            alert("New answer title or text missing!");
+        if( this.add_answer_short == "" | this.add_answer_long =="") {
+            alert("Answer-short and/or answer missing!");
         }
-        this.answers.push({aid: uuidv4(), answer: add_answer_title + ": " + add_answer_text});
-        this.selected_answers.puhs(true);
+        else {
+            this.answers.push({aid: this.answers.length, answer: this.add_answer_short + ": " + this.add_answer_long});
+            this.selected_answers.push(true);
+            this.add_answer_short = "";
+            this.add_answer_long = "";
+        }
     }
   },
   mounted() {
@@ -95,6 +99,7 @@ export default {
         this.candidate = response.data.candidate;
         this.ranked_questions = response.data.ranked_questions;
         this.answers = response.data.answers;
+        this.selected_answers = Array.apply(null, Array(this.answers.length)).map(function () {})
       })
       .catch(e => {
         console.log(e);
@@ -103,7 +108,7 @@ export default {
   computed: {
       filtered_answers() {
       return this.answers.filter(answer => {
-        return answer.answer.toLowerCase().includes(this.search_answers.toLowerCase())
+        return answer.answer.toLowerCase().includes(this.search_answers.toLowerCase()) || answer["answer-short"].toLowerCase().includes(this.search_answers.toLowerCase()) 
       })
     }
   }

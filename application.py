@@ -59,6 +59,12 @@ def saveannotation():
         print(e)
     return index()
 
+# TODO Create a new Answer by post request
+@app.route("/create_new_answer", methods=["POST"])
+def create_new_answer():
+    pass
+
+
 @app.route("/reset", methods=["POST", "GET"])
 def reset():
     global ANN, ANS
