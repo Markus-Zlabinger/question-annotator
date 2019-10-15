@@ -26,7 +26,7 @@
                 <label for="search_answers"><b>Search: </b></label>
                 <input id="search_answers" type="text"  v-model="search_answers">
             </b-list-group-item>
-              <b-list-group-item v-for="(answer, index) in filtered_answers" :key="index" @click="answer_clicked(index)" :class="{'active': selected_answers[index]}" button>
+              <b-list-group-item v-for="(answer, index) in filtered_answers" :key="index" @click="answer_clicked(index)" :class="{'active': selected_answer == index}" button>
                 <div class="answer">
                   <b>{{answer.aid}}</b>
                   {{answer["answer-short"]}}: {{answer.answer}}
@@ -66,7 +66,8 @@ export default {
       selected_questions: [],
       answers: [],
       search_answers: '',
-      selected_answers: [], 
+      //selected_answers: [],
+      selected_answer: -999, 
       add_answer_short: '',
       add_answer_long: ''
     };
@@ -76,7 +77,8 @@ export default {
         this.$set(this.selected_questions, index, !this.selected_questions[index])
     },
     answer_clicked(index) {
-        this.$set(this.selected_answers, index, !this.selected_answers[index])
+        //this.$set(this.selected_answers, index, !this.selected_answers[index])
+        this.selected_answer = index;
     }, 
     add_new_answer() {
         if( this.add_answer_short == "" | this.add_answer_long =="") {
@@ -91,8 +93,9 @@ export default {
               .post(url, formData)
               .then(response => {
                 console.log(response.data);
-                this.answers.push({aid: response.data.aid, answer: this.add_answer_short + ": " + this.add_answer_long});
-                this.selected_answers.push(true);
+                this.answers.push({aid: response.data.aid, "answer-short": this.add_answer_short, answer: this.add_answer_long});
+                //this.selected_answers.push(true);
+                this.selected_answer = this.answers.length -1;
                 this.add_answer_short = "";
                 this.add_answer_long = "";
               })
