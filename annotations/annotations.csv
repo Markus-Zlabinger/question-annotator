@@ -1,52 +1,12 @@
 group,label,qid,question
-0,id74,21,can't remember password and login
-0,id74,15,password forgotten
-0,id74,20,lost password
-0,id74,22,what to do if password forgotten
-0,id74,17,where can i find my login credentials
-0,id74,19,request new login credentials
-0,id74,18,"login details lost, where to get new ones?"
-0,id74,16,password cannot remember
-1,id43,43,Can I see my e-mails online??
-1,id43,40,emails online
-1,id43,45,e-mail online
-1,id43,46,online mails
-1,id43,39,Online service for emails
-1,id43,41,webmail
-1,id43,42,web service for mails
-1,id43,44,Url for the e-mail webservice
-1,id43,38,Where can I get my e-mails online?
-2,id131,34,Why is my mobile phone not working
-2,id131,33,Since yesterday my phone has stopped working
-3,id325,12,Buy mobile phone online
-3,id325,4,My mobile phone is gone
-3,id325,14,Can you recommend shopfs for mobile phones?
-3,id325,31,phone dead
-3,id325,30,My phone is not working
-3,id325,9,Where best buy phone
-3,id325,32,cannot start phone
-3,id325,8,Thief has taken phone
-3,id325,11,Mobile phone shopping
-10,id124,24,customer over years any offers
-10,id124,26,special bonus program
-10,id124,10,Place for new phones
-10,id124,23,do you have any special offers for long time customer
-11,id14,29,do you have an overview of offers
-11,id14,47,How much do I pay for roaming
-11,id14,2,I wish you a great day
-11,id14,25,special offers
-7,48,roaming overview prices,12
-0,16,password cannot remember,12
-3,15,password forgotten,14
-6,38,Where can I get my e-mails online?,15
-3,16,password cannot remember,12
-3,16,password cannot remember,12
-3,16,password cannot remember,12
-3,15,password forgotten,13
-6,38,Where can I get my e-mails online?,14
-3,20,lost password,12
-3,15,password forgotten,12
-3,22,what to do if password forgotten,12
-3,32,cannot start phone,12
-3,32,cannot start phone,12
-3,16,password cannot remember,12
+12,3,21,can't remember password and login
+12,3,15,password forgotten
+12,3,20,lost password
+12,3,22,what to do if password forgotten
+12,3,16,password cannot remember
+13,6,43,Can I see my e-mails online??
+13,6,40,emails online
+13,6,45,e-mail online
+13,6,46,online mails
+13,6,39,Online service for emails
+13,6,38,Where can I get my e-mails online?

@@ -89,6 +89,23 @@ def create_new_answer():
         "aid": aid
     })
 
+@app.route("/get_overview", methods=["POST", "GET"])
+def get_overview(sort_by="group"):
+    global annotator
+    annotated_groups = annotator.get_overview(sort_by)
+    return jsonify({
+        "annotations": annotated_groups
+    })
+
+    # answer = request.form.get("answer", type=str)
+    # answer_short = request.form.get("answer-short", type=str)
+    # print(answer, answer_short)
+    # # TODO Create the new answer and return the ID
+    # aid = 123456
+    # return jsonify({
+    #     "aid": aid
+    # })
+
 
 @app.route("/reset", methods=["POST", "GET"])
 def reset():

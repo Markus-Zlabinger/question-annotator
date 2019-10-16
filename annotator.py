@@ -87,6 +87,18 @@ class Annotator:
             return None
         return pd.read_csv(config.PATH_ANNOTATION_FILE)
 
+    def get_overview(self, sort_by):
+        if not os.path.isfile(config.PATH_ANNOTATION_FILE):
+            return []
+        annotations = pd.read_csv(config.PATH_ANNOTATION_FILE)
+        question_groups = []
+
+        for group in set(annotations[sort_by]):
+            question_group = list(annotations[annotations[sort_by] == group]["qid"])
+            question_group = [self.get_question(x) for x in question_group]
+            question_groups.append(question_group)
+        return question_groups
+
     def save_annotations(self, label, question_ids):
         # Check if IDs were already annotated
         question_ids_clean = []
