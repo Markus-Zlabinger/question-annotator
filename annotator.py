@@ -87,7 +87,7 @@ class Annotator:
             return None
         return pd.read_csv(config.PATH_ANNOTATION_FILE)
 
-    def get_overview(self, sort_by):
+    def get_overview(self, sort_by, answer_catalog):
         if not os.path.isfile(config.PATH_ANNOTATION_FILE):
             return []
         annotations = pd.read_csv(config.PATH_ANNOTATION_FILE)
@@ -96,12 +96,19 @@ class Annotator:
         for group in set(annotations[sort_by]):
             annotations[annotations[sort_by] == group]
             df = annotations[annotations[sort_by] == group]
-            question_groups.append(df.to_dict(orient="records"))
-            # question_group = annotations[annotations[sort_by] == group]
-            # question_group = [self.get_question(x) for x in question_group]
-            # for q in question_group:
-            #     pass
-            # question_groups.append(question_group)
+            aids = df["label"].unique()
+            assert len(aids) == 1
+            aid = aids[0]
+
+            answer = answer_catalog.get_answer(aid)
+            questions = [self.get_question(q) for q in df["qid"]]
+
+            question_groups.append(
+                {
+                    "answer": answer,
+                    "questions": questions,
+                }
+            )
         return question_groups
 
     def save_annotations(self, label, question_ids):

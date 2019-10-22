@@ -17,6 +17,14 @@ class Answers:
             self.answer_ids.add(aid)
         self.answers = answers
 
+    def get_answer(self, aid):
+        for answer in self.answers:
+            if answer["aid"] == aid:
+                return answer
+        assert False
+        return None
+
+
     def check_valid_label(self, label):
         # if labels is None or len(labels) != 1:
         #     return False
