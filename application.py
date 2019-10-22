@@ -35,6 +35,8 @@ def candidate():
     answers = answer_catalog.answers
 
     # TODO: Remove improvised code
+    for q in ranked_questions:
+        q["preselect"] = False
     if len(ranked_questions) > 0:
         ranked_questions[0]["preselect"] = True
 

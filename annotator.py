@@ -94,9 +94,14 @@ class Annotator:
         question_groups = []
 
         for group in set(annotations[sort_by]):
-            question_group = list(annotations[annotations[sort_by] == group]["qid"])
-            question_group = [self.get_question(x) for x in question_group]
-            question_groups.append(question_group)
+            annotations[annotations[sort_by] == group]
+            df = annotations[annotations[sort_by] == group]
+            question_groups.append(df.to_dict(orient="records"))
+            # question_group = annotations[annotations[sort_by] == group]
+            # question_group = [self.get_question(x) for x in question_group]
+            # for q in question_group:
+            #     pass
+            # question_groups.append(question_group)
         return question_groups
 
     def save_annotations(self, label, question_ids):
@@ -134,7 +139,7 @@ class Annotator:
         return {
             "qid": qid,
             "question": self.questions[qid],
-            "preselect": False # TODO: make dynamic
+            # "preselect": False # TODO: make dynamic
         }
 
     def get_random_candidate(self):
