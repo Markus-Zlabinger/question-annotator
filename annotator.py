@@ -97,7 +97,10 @@ class Annotator:
             annotations[annotations[sort_by] == group]
             df = annotations[annotations[sort_by] == group]
             aids = df["label"].unique()
+            print(df)
+            print(len(aids))
             assert len(aids) == 1
+
             aid = aids[0]
 
             answer = answer_catalog.get_answer(aid)

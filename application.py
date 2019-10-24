@@ -91,6 +91,10 @@ def create_new_answer():
         "aid": aid
     })
 
+@app.route("/delete_annotation", methods=["POST"])
+def delete_annotation(qid):
+    pass
+
 @app.route("/get_overview", methods=["GET"])
 # Input options for sort_by: "group" OR "label"
 def get_overview():
