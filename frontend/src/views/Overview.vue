@@ -12,7 +12,7 @@
             button-variant="outline-primary"
             size="lg"
             name="radio-btn-outline"
-            @change="sort()"
+            @input="sort()"
           ></b-form-radio-group>
         </b-form-group>
       </b-row>
