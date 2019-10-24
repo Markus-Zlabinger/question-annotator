@@ -91,10 +91,11 @@ def create_new_answer():
         "aid": aid
     })
 
-@app.route("/get_overview", methods=["POST", "GET"])
+@app.route("/get_overview", methods=["GET"])
 # Input options for sort_by: "group" OR "label"
-def get_overview(sort_by="group"):
+def get_overview():
     global annotator, answer_catalog
+    sort_by = request.args.get('sort_by')
     annotated_groups = annotator.get_overview(sort_by, answer_catalog)
     return jsonify({
         "annotations": annotated_groups

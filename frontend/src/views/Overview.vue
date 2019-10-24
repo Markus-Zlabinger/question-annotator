@@ -3,6 +3,20 @@
     <h1>Overview</h1>
     <b-container>
       <b-row class="justify-content-md-center">
+        <b-form-group label="Select a sorting method">
+          <b-form-radio-group
+            id="btn-radios-2"
+            v-model="selected"
+            :options="options"
+            buttons
+            button-variant="outline-primary"
+            size="lg"
+            name="radio-btn-outline"
+            @change="sort()"
+          ></b-form-radio-group>
+        </b-form-group>
+      </b-row>
+      <b-row class="justify-content-md-center">
         <b-card-group columns>
           <b-card
             v-for="(annotation, index) in annotations"
@@ -30,13 +44,22 @@ import axios from "axios";
 export default {
   data() {
     return {
-      annotations: []
+      annotations: [],
+      selected: "group",
+      options: [
+        { text: "Sort by Group", value: "group" },
+        { text: "Sort by Label", value: "label" }
+      ]
     };
   },
   mounted() {
     const url = "http://127.0.0.1:5000/get_overview";
     axios
-      .get(url)
+      .get(url, {
+        params: {
+          sort_by: this.selected
+        }
+      })
       .then(response => {
         console.log(response.data);
         this.annotations = response.data.annotations;
@@ -44,6 +67,24 @@ export default {
       .catch(e => {
         console.log(e);
       });
+  },
+  methods: {
+    sort() {
+      const url = "http://127.0.0.1:5000/get_overview";
+      axios
+        .get(url, {
+          params: {
+            sort_by: this.selected
+          }
+        })
+        .then(response => {
+          console.log(response.data);
+          this.annotations = response.data.annotations;
+        })
+        .catch(e => {
+          console.log(e);
+        });
+    }
   }
 };
 </script>
