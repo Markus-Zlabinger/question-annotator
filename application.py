@@ -28,17 +28,15 @@ def index():
     return render_template("interface.html", name="Startpage", questions=ranked_questions, annotated_data=dict(), candidate=candidate, answers=answers)
 
 @app.route("/candidate")
-def candidate():
+def candidate(cluster_preselect=True):
     global annotator, answer_catalog
     candidate = annotator.get_next_candidate()
-    ranked_questions = annotator.get_similar_questions(candidate)
+    if candidate:
+        preselect_ids = set()
+        if cluster_preselect:
+            preselect_ids = analysis.get_preselect(candidate["qid"])
+        ranked_questions = annotator.get_similar_questions(candidate, preselect_ids=preselect_ids)
     answers = answer_catalog.answers
-
-    # TODO: Remove improvised code
-    for q in ranked_questions:
-        q["preselect"] = False
-    if len(ranked_questions) > 0:
-        ranked_questions[0]["preselect"] = True
 
     return jsonify({
             "candidate": candidate,
@@ -80,16 +78,18 @@ def saveannotation():
     return candidate()
 
 
-@app.route("/create_new_answer", methods=["POST"])
-def create_new_answer():
-    answer = request.form.get("answer", type=str)
-    answer_short = request.form.get("answer-short", type=str)
-    print(answer, answer_short)
-    # TODO Create the new answer and return the ID
-    aid = 123456
-    return jsonify({
-        "aid": aid
-    })
+# @app.route("/create_new_answer", methods=["POST"])
+# def create_new_answer():
+#     global answer_catalog
+#     answer = request.form.get("answer", type=str)
+#     answer_short = request.form.get("answer-short", type=str)
+#     print(answer, answer_short)
+#     answer_catalog.add_answer(answer, answer_short)
+#     # TODO Create the new answer and return the ID
+#     aid = 123456
+#     return jsonify({
+#         "aid": aid
+#     })
 
 @app.route("/delete_annotation", methods=["POST"])
 def delete_annotation(qid):

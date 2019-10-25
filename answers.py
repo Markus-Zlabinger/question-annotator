@@ -24,6 +24,9 @@ class Answers:
         assert False
         return None
 
+    def add_answer(self, answer, answer_short):
+        pass
+
 
     def check_valid_label(self, label):
         # if labels is None or len(labels) != 1:

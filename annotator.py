@@ -17,7 +17,7 @@ class Annotator:
         self.initialize()
 
     def initialize(self):
-        self.questions = data_io.get_questions(config.PATH_QUESTIONS)
+        self.questions = data_io.get_questions()
         self.sim_matrix = data_io.get_sim_matrix(config.PATH_SIM_MATRIX)
         self.initialize_question_pool()
         self.initialize_counter()
@@ -28,11 +28,11 @@ class Annotator:
 
         if annotations is not None:
             toremove_qids = annotations["qid"].tolist()
-            for qid, question in self.questions.items():
+            for qid, question in enumerate(self.questions):
                 if qid not in toremove_qids:
                     self.question_pool[qid] = question
         else:
-            self.question_pool = self.questions
+            self.question_pool = {qid: question for qid, question in enumerate(self.questions)}
 
     def initialize_counter(self):
         annotations = self.get_annotations()
@@ -53,7 +53,7 @@ class Annotator:
         ranked_neighbors = sorted(ranked_neighbors, key=lambda x: x[1], reverse=True)
         return ranked_neighbors
 
-    def get_similar_questions(self, candidate):
+    def get_similar_questions(self, candidate, preselect_ids=set()):
         # Case: All questions are already annotated
         if candidate is None:
             return []
@@ -63,6 +63,7 @@ class Annotator:
         for qid, similarity in ranked_neighbors:
             question = self.get_question(qid)
             question["similarity"] = similarity
+            question["preselect"] = qid in preselect_ids
             questionlist.append(question)
         return questionlist
 
@@ -93,14 +94,11 @@ class Annotator:
         annotations = pd.read_csv(config.PATH_ANNOTATION_FILE)
         question_groups = []
 
-        for group in set(annotations[sort_by]):
+        for group in annotations[sort_by].unique():
             annotations[annotations[sort_by] == group]
             df = annotations[annotations[sort_by] == group]
             aids = df["label"].unique()
-            print(df)
-            print(len(aids))
             assert len(aids) == 1
-
             aid = aids[0]
 
             answer = answer_catalog.get_answer(aid)

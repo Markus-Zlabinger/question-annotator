@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import 'vue-material/dist/vue-material.min.css'
 import Header from './components/layout/Header'
 export default {
   name: 'app',

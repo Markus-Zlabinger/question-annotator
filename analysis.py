@@ -15,19 +15,21 @@ import random
 
 class Analysis:
     questions = None
+    questions_clusterlabels = None
     questions_vectors = None
 
     def __init__(self):
         self.initialize()
 
     def initialize(self):
-        self.questions = list(data_io.get_questions(config.PATH_QUESTIONS).values())
-        self.questions_vectors = data_io.get_question_vectors(config.PATH_QUESTIONS_VECTORS)
+        self.questions = data_io.get_questions()
+        self.questions_vectors = data_io.get_question_vectors()
 
 
     def get_clusters(self):
         clusterer = OPTICS(metric="cosine", min_samples=3, algorithm="brute")
         clusterer.fit(self.questions_vectors)
+        self.questions_clusterlabels = clusterer.labels_
         return self.prepare_clusters(clusterer.labels_)
 
     def prepare_clusters(self, cluster_labels):
@@ -47,5 +49,19 @@ class Analysis:
             score += 1.0
             cluster_results.append(cluster_result)
         cluster_results = sorted(cluster_results, key = lambda x: x["score"], reverse=True)
+
         return cluster_results
+
+    def get_preselect(self, candidate_qid):
+        if self.questions_clusterlabels is None:
+            self.get_clusters()
+        preselect_label = self.questions_clusterlabels[candidate_qid]
+        if preselect_label < 0:
+            return set()
+
+        preselect_set = set()
+        for qid, clusterlabel in enumerate(self.questions_clusterlabels):
+            if clusterlabel == preselect_label and qid != candidate_qid:
+                preselect_set.add(qid)
+        return preselect_set
 
