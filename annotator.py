@@ -4,6 +4,7 @@ import pandas as pd
 import os
 import config
 from collections import Counter
+import numpy as np
 
 
 class Annotator:
@@ -68,7 +69,6 @@ class Annotator:
         return questionlist
 
     def get_questionpool(self, questions):
-        print(questions)
         annotations = self.get_annotations()
         if annotations is not None:
             toremove_qids = annotations["qid"].tolist()
@@ -94,6 +94,8 @@ class Annotator:
         annotations = pd.read_csv(config.PATH_ANNOTATION_FILE)
         question_groups = []
 
+        qid2outlier = self.compute_outliers(annotations)
+
         for group in annotations[sort_by].unique():
             annotations[annotations[sort_by] == group]
             df = annotations[annotations[sort_by] == group]
@@ -104,6 +106,9 @@ class Annotator:
             answer = answer_catalog.get_answer(aid)
             questions = [self.get_question(q) for q in df["qid"]]
 
+            for question in questions:
+                question["outlier"] = qid2outlier[question["qid"]]
+
             question_groups.append(
                 {
                     "answer": answer,
@@ -111,6 +116,31 @@ class Annotator:
                 }
             )
         return question_groups
+
+    def compute_outlier_score(self, qid_current, qids):
+        scores = [self.sim_matrix[qid_current, qid] for qid in qids]
+        return np.mean(scores)
+
+
+    def compute_outliers(self, annotations):
+        labels = list(annotations.label.unique())
+        label2qids = {label: list(annotations["qid"][annotations.label == label]) for label in labels}
+        outlier_scores = dict()
+        for qid_current, label_current in zip(annotations["qid"], annotations["label"]):
+            score_current_label = self.sim_matrix[qid_current, qid_current]
+            score_other_label_max = 0.0
+            other_label_max = label_current
+            other_qids = [x for x in label2qids[label_current] if x != qid_current]
+            if len(other_qids) > 0: # Check if current_qid is the only question labeled with current_label
+                score_current_label = self.compute_outlier_score(qid_current, label2qids[label_current])
+            for label in labels:
+                if label != label_current:
+                    score_other_label = self.compute_outlier_score(qid_current, label2qids[label])
+                    if score_other_label_max < score_other_label:
+                        score_other_label_max = score_other_label
+                        other_label_max = label
+            outlier_scores[qid_current] = {"score": score_current_label - score_other_label_max, "predicted_label": int(other_label_max), "initial_label": label_current}
+        return outlier_scores
 
     def save_annotations(self, label, question_ids):
         # Check if IDs were already annotated
@@ -121,7 +151,6 @@ class Annotator:
         question_ids = question_ids_clean
         # Prepare Annotations
         annotations = []
-        print(question_ids)
         for qid in question_ids:
             annotations.append({
                 "label": label,

@@ -102,25 +102,19 @@ def get_overview():
     sort_by = request.args.get('sort_by')
     annotated_groups = annotator.get_overview(sort_by, answer_catalog)
     return jsonify({
-        "annotations": annotated_groups
+        "annotations": annotated_groups,
+        "answers": answer_catalog.answers
     })
 
-    # answer = request.form.get("answer", type=str)
-    # answer_short = request.form.get("answer-short", type=str)
-    # print(answer, answer_short)
-    # # TODO Create the new answer and return the ID
-    # aid = 123456
-    # return jsonify({
-    #     "aid": aid
-    # })
 
 
-@app.route("/reset", methods=["POST", "GET"])
+@app.route("/reset", methods=["GET"])
 def reset():
     global annotator, answer_catalog
     annotator = annotator.reset()
     answer_catalog = Answers()
-    return index()
+    # return index()
+    return ""
 
 
 
