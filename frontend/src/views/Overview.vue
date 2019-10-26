@@ -26,36 +26,39 @@
             <b-row class="justify-content-md-center">
                 <b-card-group columns>
                     <b-card
-                            v-for="(annotation, index) in annotations"
-                            :key="index"
-                            :header="annotation.answer['answer-short']"
+                            v-for="(annotation, group_index) in annotations"
+                            :key="group_index"
+                            :header="annotation.answer.aid"
                             align="left"
                     >
                         <b-list-group>
                             <b-list-group-item class="d-flex justify-content-between align-items-center"
-                                               v-for="(question, index) in annotation.questions" :key="index">
+                                               v-for="(question, question_index) in annotation.questions"
+                                               :key="question_index">
                                 {{question.question}}
                                 <!-- IF OUTLIER IS DETECTED -->
-                                <b-badge v-b-modal.my-modal v-if="question.outlier.score < 0.0" href="#" variant="danger">
+                                <b-badge v-b-modal="group_index+ '_' + question_index"
+                                         v-if="question.outlier.score < 0.0"
+                                         href="#"
+                                         variant="danger">
                                     Potential Outlier
-<!--                                    <b-button v-b-modal.my-modal>Show Modal</b-button>-->
-                                    <b-modal id="my-modal" hide-footer>
+                                    <!--                                    <b-button v-b-modal.my-modal>Show Modal</b-button>-->
+                                    <b-modal v-bind:id="group_index+ '_' + question_index" hide-footer>
                                         <template v-slot:modal-title>
                                             <b>Question:</b> {{question.question}}
                                         </template>
                                         <b-list-group flush>
-                                            <b-list-group-item><b>Labeled Answer ({{question.outlier.initial_label}}):</b>
-                                                {{answers[question.outlier.initial_label].answer}}
+                                            <b-list-group-item><b>Labeled Answer
+                                                ({{question.outlier.initial_label}}):</b>
+                                                {{answers[question.outlier.initial_label]}}
                                             </b-list-group-item>
-                                            <b-list-group-item><b>Predicted Answer ({{question.outlier.predicted_label}}):</b>
-                                                {{answers[question.outlier.predicted_label].answer}}
+                                            <b-list-group-item><b>Predicted Answer
+                                                ({{question.outlier.predicted_label}}):</b>
+                                                {{answers[question.outlier.predicted_label]}}
                                             </b-list-group-item>
                                         </b-list-group>
                                     </b-modal>
                                 </b-badge>
-                                <!--                                <div v-if="question.outlier.score < 0.0">-->
-                                <!--                                    {{answers[question.outlier.predicted_label].answer}}-->
-                                <!--                                </div>-->
                             </b-list-group-item>
                         </b-list-group>
                     </b-card>
@@ -72,10 +75,10 @@
         data() {
             return {
                 annotations: [],
-                selected: "group",
+                selected: "aid",
                 options: [
                     {text: "Sort by Group", value: "group"},
-                    {text: "Sort by Label", value: "label"}
+                    {text: "Sort by Label", value: "aid"}
                 ],
                 boxtest: "",
                 answers: [],

@@ -59,18 +59,21 @@ def saveannotation():
     global annotator, answer_catalog
     try:
         """ Save Annotations to CSV File """
-        label = request.form.get("labels", type=int)
+        labels = request.form.getlist("labels[]", type=str)
         question_ids = request.form.getlist("questionlist[]", type=int)
         candidate_id = request.form.get("candidate", type=int)
         print(candidate_id)
         print(question_ids)
-        print(label)
-        if answer_catalog.check_valid_label(label):
-            question_ids.append(candidate_id)
+        print(labels)
+        question_ids.append(candidate_id)
+        if len(labels) == 0:
+            return candidate()
+        for label in labels:
+            # if answer_catalog.check_valid_label(label):
             annotator.save_annotations(label, question_ids)
 
-            """ Remove Annotations from Questions Pool """
-            annotator.remove_questions_from_pool(question_ids)
+        """ Remove Annotations from Questions Pool """
+        annotator.remove_questions_from_pool(question_ids)
 
     except Exception as e:
         print("Something went wrong!")
@@ -103,7 +106,7 @@ def get_overview():
     annotated_groups = annotator.get_overview(sort_by, answer_catalog)
     return jsonify({
         "annotations": annotated_groups,
-        "answers": answer_catalog.answers
+        "answers": {a["aid"]: a["answer"] for a in answer_catalog.answers}
     })
 
 

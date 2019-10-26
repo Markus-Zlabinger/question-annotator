@@ -7,7 +7,8 @@ Vue.use(Vuex);
 // Create store
 export default new Vuex.Store({
   state: {
-    preselect: true
+    preselect: true,
+    multipleanswers: false,
   },
   getters: {
    

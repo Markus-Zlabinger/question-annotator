@@ -12,12 +12,13 @@ class Answers:
     def initialize(self):
         answers = []
         df = pd.read_csv(config.PATH_ANSWERS)
-        for aid, (answershort, answer) in enumerate(zip(df["answer-short"], df["answer"])):
-            answers.append({"aid": aid, "answer": answer, "answer-short": answershort})
+        for aid, answer in zip(df["aid"], df["answer"]):
+            answers.append({"aid": aid, "answer": answer})
             self.answer_ids.add(aid)
         self.answers = answers
 
     def get_answer(self, aid):
+        print(aid)
         for answer in self.answers:
             if answer["aid"] == aid:
                 return answer

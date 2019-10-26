@@ -1,9 +1,10 @@
 <template>
     <div>
-<!--        <h1>Annotation</h1>-->
+        <!--        <h1>Annotation</h1>-->
         <b-container>
+            <!-- CANDIDATE QUESTION -->
             <b-row class="justify-content-md-center">
-                <b-col>
+                <b-col class="text-center">
                   <span class="candidate">
                     <b>Candidate Question:</b>
                     {{candidate.question}}
@@ -11,11 +12,12 @@
                 </b-col>
                 <b-col>
                     <b-row>
+                        <!-- OPTION MENU -->
                         <b-col>
                             <div class="submit_button">
-                                <b-button variant="primary" size="lg" @click="save_annotation">Save Annotation</b-button>
+                                <b-button variant="primary" size="lg" @click="save_annotation">Save Annotation
+                                </b-button>
                             </div>
-
                         </b-col>
                         <b-col>
                             <div class="custom-control custom-switch">
@@ -24,10 +26,17 @@
                                        v-model="toggle_preselect">
                                 <label class="custom-control-label" for="togglePreselect">Preselect Clusters</label>
                             </div>
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="toggleMultipleanswers"
+                                       @click="toggle_multipleanswers_clicked()"
+                                       v-model="$store.state.multipleanswers">
+                                <label class="custom-control-label" for="toggleMultipleanswers">Multiple Answers</label>
+                            </div>
                         </b-col>
                         <b-col>
                             <b-alert v-model="annotation_success" variant="success" dismissible>
-                                The candidate <b>'{{success_candidate}}'</b> and <b>{{success_num_annotations}}</b> other questions were annotated.
+                                The candidate <b>'{{success_candidate}}'</b> and <b>{{success_num_annotations}}</b>
+                                other questions were annotated.
                             </b-alert>
                         </b-col>
                     </b-row>
@@ -35,6 +44,8 @@
             </b-row>
             <b-row class="justify-content-md-center">
                 <b-card-group deck header-tag="header">
+
+                    <!-- QUESTION LIST  -->
                     <b-card align="center">
                         <template v-slot:header>
                             <b>Select questions</b>
@@ -52,6 +63,8 @@
                             </b-list-group-item>
                         </b-list-group>
                     </b-card>
+
+                    <!-- ANSWER LIST  -->
                     <b-card align="center">
                         <template v-slot:header>
                             <b>Select answer(s)</b>
@@ -64,15 +77,15 @@
                                 <input id="search_answers" type="text" v-model="search_answers"/>
                             </b-list-group-item>
                             <b-list-group-item
-                                    v-for="(answer, index) in filtered_answers"
+                                    v-for="(answer, index) in answers"
                                     :key="index"
                                     @click="answer_clicked(index)"
-                                    :class="{'active': selected_answer == index}"
+                                    :class="{'active': active_answers[index]}"
                                     button
                             >
                                 <div class="answer">
                                     <b>{{answer.aid}}</b>
-                                    {{answer["answer-short"]}}: {{answer.answer}}
+                                    {{answer.answer}}
                                 </div>
                             </b-list-group-item>
                         </b-list-group>
@@ -101,7 +114,8 @@
                 answers: [],
                 search_answers: "",
                 //selected_answers: [],
-                selected_answer: -999,
+                active_answers: [],
+                // selected_answer: -999,
                 add_answer_short: "",
                 add_answer_long: "",
                 toggle_preselect: this.$store.state.preselect,
@@ -111,37 +125,44 @@
             };
         },
         methods: {
+            answer_clicked(index) {
+                if (this.$store.state.multipleanswers == false) {
+                    this.render_active_answers()
+                }
+                this.$set(this.active_answers, index, !this.active_answers[index]);
+            },
             question_clicked(question, index) {
                 this.$set(this.active_questions, index, !this.active_questions[index]);
             },
-            answer_clicked(index) {
-                this.selected_answer = index;
-            },
             toggle_preselect_clicked() {
-                this.$store.state.preselect = !this.$store.state.preselect
-                this.render_active_questions()
-                // this.active_questions = this.ranked_questions.map(question => {
-                //     return event.target.checked && (question.preselect);
-                // });
-                // if (this.$store.state.preselect) {
-                //     this.active_questions = this.ranked_questions.map(question => {
-                //         return (this.$store.state.preselect) && (question.preselect);;
-                //     });
-                // } else {
-                //     this.active_questions = this.ranked_questions.map(question => {
-                //         return false;
-                //     });
-                // }
+                this.$store.state.preselect = !this.$store.state.preselect;
+                this.render_active_questions();
+            },
+            toggle_multipleanswers_clicked() {
+                this.render_active_answers();
             },
             save_annotation() {
-                if (this.selected_answer == -999 || isNaN(this.selected_answer)) {
+                if (this.active_answers.every(element => element === false)) {
                     alert("Please select an Answer");
                     window.scrollTo(0, 0);
                     return;
                 }
+                // if (this.selected_answer == -999 || isNaN(this.selected_answer)) {
+                //     alert("Please select an Answer");
+                //
+                //     return;
+                // }
                 const url = "http://127.0.0.1:5000/saveannotation";
                 const formData = new FormData();
-                formData.append("labels", this.selected_answer);
+
+                // formData.append("labels[]", this.active_answers);
+
+                this.answers.forEach((answer, index) => {
+                    if (this.active_answers[index]) {
+                        formData.append("labels[]", '' + answer["aid"]);
+                    }
+                });
+
                 this.selected_questions = this.ranked_questions
                     .filter((question, i) => this.active_questions[i])
                     .map(question => question.qid);
@@ -149,15 +170,15 @@
                     formData.append("questionlist[]", question);
                 });
                 formData.append("candidate", this.candidate.qid);
-                this.success_num_annotations = this.selected_questions.length
-                this.success_candidate = this.candidate.question
+                this.success_num_annotations = this.selected_questions.length;
+                this.success_candidate = this.candidate.question;
                 axios
                     .post(url, formData)
                     .then(response => {
-                        this.generate_content(response)
+                        this.generate_content(response);
                         this.search_answers = "";
                         this.selected_answer = -999;
-                        this.annotation_success = true
+                        this.annotation_success = true;
                         window.scrollTo(0, 0);
                     })
                     .catch(e => {
@@ -169,17 +190,18 @@
                     return this.$store.state.preselect && question.preselect;
                 });
             },
+            render_active_answers() {
+                this.active_answers = this.answers.map(answer => {
+                    return false;
+                });
+            },
             generate_content(response) {
                 console.log(response.data);
                 this.candidate = response.data.candidate;
                 this.ranked_questions = response.data.ranked_questions;
                 this.answers = response.data.answers;
-                this.selected_answers = Array.apply(
-                    null,
-                    Array(this.answers.length)
-                ).map(function () {
-                });
-                this.render_active_questions()
+                this.render_active_answers();
+                this.render_active_questions();
             },
         },
         mounted() {
@@ -187,7 +209,7 @@
             axios
                 .get(url)
                 .then(response => {
-                    this.generate_content(response)
+                    this.generate_content(response);
                 })
                 .catch(e => {
                     console.log(e);

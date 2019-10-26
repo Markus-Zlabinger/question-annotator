@@ -1,7 +1,8 @@
 from os.path import join
 
 PATH_QUESTIONS = join("data", "sample-questions.txt")
-PATH_ANSWERS = join("data", "sample-answers.txt")
+# PATH_ANSWERS = join("data", "sample-answers.txt")
+PATH_ANSWERS = join("data", "sample-answers-html.txt")
 PATH_TRAINING_QUESTIONS = join("data", "semeval-question-corpus.txt")
 # PATH_SIM_MATRIX = join("data", "sim_matrix.txt")
 PATH_SIM_MATRIX = join("data", "sim_matrix.txt")
