@@ -1,4 +1,4 @@
-answer-short,answer
+aid,answer
 "Greetings","Questions with greeting formulas"
 "Lost Phone","If you have lost your phone or your phone got stolen, please directly contact one of our service team members. They are available 12 hours per day through our live-chat, E-Mail or per phone." 
 "Buy Phone","New phones can be purchased in our online shop. In addition, you can visit one of our 44 shops. Opening hours and shop locations can be found in the online page."

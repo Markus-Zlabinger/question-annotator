@@ -1,50 +1,51 @@
-Hello my friend
-Greeting
-I wish you a great day
-I've lost my phone how get back
-My mobile phone is gone
-What to do if mobile is lost?
-Mobilephone stolen
-Someone has taken my phone out of my pocket yesterday
-Thief has taken phone
-Where best buy phone
-Place for new phones
-Mobile phone shopping
-Buy mobile phone online
-Where should I buy a new phone???
-Can you recommend shopfs for mobile phones?
-password forgotten
-password cannot remember
-where can i find my login credentials
-login details lost, where to get new ones?
-request new login credentials
-lost password
-can't remember password and login
-what to do if password forgotten
-do you have any special offers for long time customer
-customer over years any offers
-special offers
-special bonus program
-I'm a loyal customer can you give me stuff for free
-can i get a special offer for a phone
-do you have an overview of offers
-My phone is not working
-phone dead
-cannot start phone
-Since yesterday my phone has stopped working
-Why is my mobile phone not working
-HELP phone start fails
-the power button does not work anymore
-dark display and no power
-Where can I get my e-mails online?
-Online service for emails
-emails online
-webmail
-web service for mails
-Can I see my e-mails online??
-Url for the e-mail webservice
-e-mail online
-online mails
-How much do I pay for roaming
-roaming overview prices
-roaming per country
+qid,question
+0,"Hello my friend"
+1,"Greeting"
+2,"I wish you a great day"
+3,"I've lost my phone how get back"
+4,"My mobile phone is gone"
+5,"What to do if mobile is lost?"
+6,"Mobilephone stolen"
+7,"Someone has taken my phone out of my pocket yesterday"
+8,"Thief has taken phone"
+9,"Where best buy phone"
+10,"Place for new phones"
+11,"Mobile phone shopping"
+12,"Buy mobile phone online"
+13,"Where should I buy a new phone???"
+14,"Can you recommend shopfs for mobile phones?"
+15,"password forgotten"
+16,"password cannot remember"
+17,"where can i find my login credentials"
+18,"login details lost," where to get new ones?"
+19,"request new login credentials"
+20,"lost password"
+21,"can't remember password and login"
+22,"what to do if password forgotten"
+23,"do you have any special offers for long time customer"
+24,"customer over years any offers"
+25,"special offers"
+26,"special bonus program"
+27,"I'm a loyal customer can you give me stuff for free"
+28,"can i get a special offer for a phone"
+29,"do you have an overview of offers"
+30,"My phone is not working"
+31,"phone dead"
+32,"cannot start phone"
+33,"Since yesterday my phone has stopped working"
+34,"Why is my mobile phone not working"
+35,"HELP phone start fails"
+36,"the power button does not work anymore"
+37,"dark display and no power"
+38,"Where can I get my e-mails online?"
+39,"Online service for emails"
+40,"emails online"
+41,"webmail"
+42,"web service for mails"
+43,"Can I see my e-mails online??"
+44,"Url for the e-mail webservice"
+45,"e-mail online"
+46,"online mails"
+47,"How much do I pay for roaming"
+48,"roaming overview prices"
+49,"roaming per country"

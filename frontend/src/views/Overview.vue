@@ -32,9 +32,10 @@
                             align="left"
                     >
                         <b-list-group>
-                            <b-list-group-item class="d-flex justify-content-between align-items-center"
-                                               v-for="(question, question_index) in annotation.questions"
-                                               :key="question_index">
+                            <!--                            class="align-items-center"-->
+                            <b-list-group-item
+                                    v-for="(question, question_index) in annotation.questions"
+                                    :key="question_index">
                                 {{question.question}}
                                 <!-- IF OUTLIER IS DETECTED -->
                                 <b-badge v-b-modal="group_index+ '_' + question_index"
@@ -59,6 +60,10 @@
                                         </b-list-group>
                                     </b-modal>
                                 </b-badge>
+
+                                <b-button pill @click="modify_annotation(question.qid)" variant="outline-secondary" class="float-right btn-sm modifyannotation">
+                                    &bull;&bull;&bull;
+                                </b-button>
                             </b-list-group-item>
                         </b-list-group>
                     </b-card>
@@ -88,6 +93,10 @@
             this.generate_content()
         },
         methods: {
+            modify_annotation(qid) {
+                //TODO: Implement this tomorrow
+                console.log(qid);
+            },
             generate_content() {
                 const url = "http://127.0.0.1:5000/get_overview";
                 axios
@@ -121,6 +130,13 @@
 </script>
 
 <style scoped>
+    .modifyannotation {
+        /*color: rgba(0, 0, 0, 0.125);*/
+        /*border-color: rgba(0, 0, 0, 0.125);*/
+        color: black;
+        border-color: black;
+    }
+
     .justify-content-md-center {
         padding: 0 10px;
     }

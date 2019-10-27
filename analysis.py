@@ -22,7 +22,7 @@ class Analysis:
         self.initialize()
 
     def initialize(self):
-        self.questions = data_io.get_questions()
+        _, self.questions = data_io.get_questions()
         self.questions_vectors = data_io.get_question_vectors()
 
 

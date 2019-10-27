@@ -84,8 +84,8 @@
                                     button
                             >
                                 <div class="answer">
-                                    <b>{{answer.aid}}</b>
-                                    {{answer.answer}}
+                                    <b>{{answer.aid}}: </b>
+                                    <span v-html="answer.answer"></span>
                                 </div>
                             </b-list-group-item>
                         </b-list-group>
@@ -115,7 +115,6 @@
                 search_answers: "",
                 //selected_answers: [],
                 active_answers: [],
-                // selected_answer: -999,
                 add_answer_short: "",
                 add_answer_long: "",
                 toggle_preselect: this.$store.state.preselect,
