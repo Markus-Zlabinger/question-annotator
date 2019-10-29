@@ -7,7 +7,7 @@ def get_questions(path=config.PATH_QUESTIONS):
     # questions = dict()
     df = pd.read_csv(path, dtype={'qid': str})
     # questions = OrderedDict(zip(df["qid"], df["question"]))
-    return df["qid"], df["question"]
+    return df["qid"].tolist(), df["question"].tolist()
     # questions = list()
     # with open(path, mode="r", encoding="utf-8") as f:
     #     for index, line in enumerate(f):

@@ -65,31 +65,32 @@
                     </b-card>
 
                     <!-- ANSWER LIST  -->
-                    <b-card align="center">
-                        <template v-slot:header>
-                            <b>Select answer(s)</b>
-                        </template>
-                        <b-list-group>
-                            <b-list-group-item>
-                                <label for="search_answers">
-                                    <b>Search:</b>
-                                </label>
-                                <input id="search_answers" type="text" v-model="search_answers"/>
-                            </b-list-group-item>
-                            <b-list-group-item
-                                    v-for="(answer, index) in answers"
-                                    :key="index"
-                                    @click="answer_clicked(index)"
-                                    :class="{'active': active_answers[index]}"
-                                    button
-                            >
-                                <div class="answer">
-                                    <b>{{answer.aid}}: </b>
-                                    <span v-html="answer.answer"></span>
-                                </div>
-                            </b-list-group-item>
-                        </b-list-group>
-                    </b-card>
+                    <AnswerList ref="answerlist"></AnswerList>
+                    <!--                    <b-card align="center">-->
+                    <!--                        <template v-slot:header>-->
+                    <!--                            <b>Select answer(s)</b>-->
+                    <!--                        </template>-->
+                    <!--                        <b-list-group>-->
+                    <!--                            <b-list-group-item>-->
+                    <!--                                <label for="search_answers">-->
+                    <!--                                    <b>Search: </b>-->
+                    <!--                                </label>-->
+                    <!--                                <input id="search_answers" type="text" v-model="search_answers"/>-->
+                    <!--                            </b-list-group-item>-->
+                    <!--                            <b-list-group-item-->
+                    <!--                                    v-for="(answer, index) in answers"-->
+                    <!--                                    :key="index"-->
+                    <!--                                    @click="answer_clicked(index)"-->
+                    <!--                                    :class="{'active': active_answers[index]}"-->
+                    <!--                                    button-->
+                    <!--                            >-->
+                    <!--                                <div class="answer">-->
+                    <!--                                    <b>{{answer.aid}}: </b>-->
+                    <!--                                    <span v-html="answer.answer"></span>-->
+                    <!--                                </div>-->
+                    <!--                            </b-list-group-item>-->
+                    <!--                        </b-list-group>-->
+                    <!--                    </b-card>-->
                 </b-card-group>
             </b-row>
         </b-container>
@@ -98,12 +99,12 @@
 
 <script>
     import axios from "axios";
-    import Multiselect from "vue-multiselect";
-    import uuidv4 from "uuid/v4";
+    import AnswerList from "../components/AnswerList";
+
 
     export default {
         components: {
-            Multiselect
+            AnswerList
         },
         data() {
             return {
@@ -111,12 +112,12 @@
                 ranked_questions: [],
                 active_questions: [],
                 selected_questions: [],
-                answers: [],
-                search_answers: "",
+                // answers: [],
+                // search_answers: "",
                 //selected_answers: [],
-                active_answers: [],
-                add_answer_short: "",
-                add_answer_long: "",
+                // active_answers: [],
+                // add_answer_short: "",
+                // add_answer_long: "",
                 toggle_preselect: this.$store.state.preselect,
                 annotation_success: false,
                 success_num_annotations: 0,
@@ -141,25 +142,18 @@
                 this.render_active_answers();
             },
             save_annotation() {
-                if (this.active_answers.every(element => element === false)) {
+                let active_answers = this.$refs.answerlist.get_active_answers();
+                if (active_answers.length === 0) {
                     alert("Please select an Answer");
                     window.scrollTo(0, 0);
                     return;
                 }
-                // if (this.selected_answer == -999 || isNaN(this.selected_answer)) {
-                //     alert("Please select an Answer");
-                //
-                //     return;
-                // }
+
                 const url = "http://127.0.0.1:5000/saveannotation";
                 const formData = new FormData();
 
-                // formData.append("labels[]", this.active_answers);
-
-                this.answers.forEach((answer, index) => {
-                    if (this.active_answers[index]) {
-                        formData.append("labels[]", '' + answer["aid"]);
-                    }
+                active_answers.forEach(aid => {
+                    formData.append("labels[]", aid);
                 });
 
                 this.selected_questions = this.ranked_questions
@@ -175,8 +169,6 @@
                     .post(url, formData)
                     .then(response => {
                         this.generate_content(response);
-                        this.search_answers = "";
-                        this.selected_answer = -999;
                         this.annotation_success = true;
                         window.scrollTo(0, 0);
                     })

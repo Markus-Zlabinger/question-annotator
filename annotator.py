@@ -13,6 +13,7 @@ class Annotator:
     sim_matrix = None
     question_ids = None
 
+
     group_counter = 0
 
     def __init__(self):
@@ -23,6 +24,7 @@ class Annotator:
         self.sim_matrix = data_io.get_sim_matrix(config.PATH_SIM_MATRIX)
         self.initialize_question_pool()
         self.initialize_counter()
+
 
     def initialize_question_pool(self):
         self.question_pool = dict()

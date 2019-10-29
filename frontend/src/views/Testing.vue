@@ -1,20 +1,33 @@
 <template>
     <div>
-        <input
-                type="checkbox"
-                v-model="toggle"
-                true-value="true"
-                false-value="false"
-        >
+        <AnswerList ref="answerlist"></AnswerList>
+        <b-button @click="updateComponentData">click me</b-button>
     </div>
+
 </template>
 
+
 <script>
+    import AnswerList from "../components/AnswerList";
+
     export default {
+        components: {
+            AnswerList,
+
+        },
         data() {
             return {
-                toggle: "no"
-            };
+                answer: "123",
+            }
+        },
+        methods:
+            {
+                updateComponentData: function () {
+                    //this.$refs.component.answer = "heeeeyho";
+                }
+            },
+        mounted() {
+           // this.$refs.component.answer = "super";
         }
     }
 </script>

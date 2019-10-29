@@ -4,18 +4,20 @@ import config
 class Answers:
 
     answers = None
-    answer_ids = set()
+    answer_ids = None
 
     def __init__(self):
         self.initialize()
 
     def initialize(self):
         answers = []
+        answer_ids = []
         df = pd.read_csv(config.PATH_ANSWERS)
         for aid, answer in zip(df["aid"], df["answer"]):
             answers.append({"aid": aid, "answer": answer})
-            self.answer_ids.add(aid)
+            answer_ids.append(aid)
         self.answers = answers
+        self.answer_ids = answer_ids
 
     def get_answer(self, aid):
         print(aid)

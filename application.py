@@ -94,9 +94,11 @@ def saveannotation():
 #         "aid": aid
 #     })
 
-@app.route("/delete_annotation", methods=["POST"])
-def delete_annotation(qid):
-    pass
+@app.route("/deleteannotation", methods=["POST"])
+def delete_annotation():
+    qid = request.form.getlist("qid", type=str)
+    aid = request.form.getlist("aid", type=str)
+    print(qid, aid)
 
 @app.route("/get_overview", methods=["GET"])
 # Input options for sort_by: "group" OR "label"
@@ -106,10 +108,20 @@ def get_overview():
     annotated_groups = annotator.get_overview(sort_by, answer_catalog)
     return jsonify({
         "annotations": annotated_groups,
-        "answers": {a["aid"]: a["answer"] for a in answer_catalog.answers}
+        "answer_dict": {a["aid"]: a for a in answer_catalog.answers},
+        # "answers": answer_catalog.answers,
+        # "answer_ids": answer_catalog.answer_ids,
+        "questions": annotator.questions,
+        "question_ids": annotator.question_ids
     })
 
 
+@app.route("/getanswers", methods=["GET"])
+def getanswers():
+    global answer_catalog
+    return jsonify({
+        "answers": answer_catalog.answers,
+    })
 
 @app.route("/reset", methods=["GET"])
 def reset():
