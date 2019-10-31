@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, request, render_template, jsonify
+from flask import Flask, redirect, url_for, request, render_template, jsonify, abort
 from flask_cors import CORS
 from annotator import Annotator
 from answers import Answers
@@ -10,6 +10,7 @@ CORS(app)
 annotator = None
 answer_catalog = None
 analysis = None
+
 
 @app.before_first_request
 def initialize():
@@ -27,22 +28,25 @@ def index():
     answers = answer_catalog.answers
     return render_template("interface.html", name="Startpage", questions=ranked_questions, annotated_data=dict(), candidate=candidate, answers=answers)
 
+
 @app.route("/candidate")
 def candidate(cluster_preselect=True):
     global annotator, answer_catalog
-    candidate = annotator.get_next_candidate()
-    if candidate:
+    current_candidate = annotator.get_next_candidate()
+    ranked_questions = list()
+    if current_candidate:
         preselect_ids = set()
         if cluster_preselect:
-            preselect_ids = analysis.get_preselect(candidate["qid"])
-        ranked_questions = annotator.get_similar_questions(candidate, preselect_ids=preselect_ids)
+            preselect_ids = analysis.get_preselect(current_candidate["qid"])
+        ranked_questions = annotator.get_similar_questions(current_candidate, preselect_ids=preselect_ids)
     answers = answer_catalog.answers
 
     return jsonify({
-            "candidate": candidate,
-            "ranked_questions": ranked_questions,
-            "answers": answers
-        })
+        "candidate": current_candidate,
+        "ranked_questions": ranked_questions,
+        "answers": answers
+    })
+
 
 @app.route("/getclusters")
 def getclusters():
@@ -60,16 +64,15 @@ def saveannotation():
     try:
         """ Save Annotations to CSV File """
         labels = request.form.getlist("labels[]", type=str)
-        question_ids = request.form.getlist("questionlist[]", type=int)
-        candidate_id = request.form.get("candidate", type=int)
-        print(candidate_id)
+        question_ids = request.form.getlist("questionlist[]", type=str)
+        # candidate_id = request.form.get("candidate", type=int)
+        # print(candidate_id)
         print(question_ids)
         print(labels)
-        question_ids.append(candidate_id)
+        # question_ids.append(candidate_id)
         if len(labels) == 0:
-            return candidate()
+            abort()
         for label in labels:
-            # if answer_catalog.check_valid_label(label):
             annotator.save_annotations(label, question_ids)
 
         """ Remove Annotations from Questions Pool """
@@ -78,7 +81,17 @@ def saveannotation():
     except Exception as e:
         print("Something went wrong!")
         print(e)
-    return candidate()
+        abort()
+    return ""
+
+
+@app.route("/modifyannotation", methods=["POST"])
+def modifyannotation():
+    global annotator, answer_catalog
+    qid = request.form.get("qid", type=int)
+    answerlabels = request.form.getlist("labels[]", type=str)
+    annotator.modify_annotation(qid, answerlabels)
+    return ""
 
 
 # @app.route("/create_new_answer", methods=["POST"])
@@ -99,6 +112,7 @@ def delete_annotation():
     qid = request.form.getlist("qid", type=str)
     aid = request.form.getlist("aid", type=str)
     print(qid, aid)
+
 
 @app.route("/get_overview", methods=["GET"])
 # Input options for sort_by: "group" OR "label"
@@ -123,6 +137,7 @@ def getanswers():
         "answers": answer_catalog.answers,
     })
 
+
 @app.route("/reset", methods=["GET"])
 def reset():
     global annotator, answer_catalog
@@ -132,13 +147,9 @@ def reset():
     return ""
 
 
-
 """ Methods """
 
 """ Web Service Code """
-
-
-
 
 # @app.route("/relabel", methods=["POST", "GET"])
 # def relabel():

@@ -1,14 +1,24 @@
 <template>
-    <b-card align="center">
+    <b-card>
         <template v-slot:header>
-            <b>Select answer(s)</b>
+            <b-row class="text-center">
+                <b-col>
+                    <b>Select answer(s)</b>
+                </b-col>
+                <b-col>
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="toggleMultipleanswers"
+                               @click="toggle_multipleanswers_clicked()"
+                               v-model="$store.state.multipleanswers">
+                        <label class="custom-control-label" for="toggleMultipleanswers">Multiple Answers</label>
+                    </div>
+                </b-col>
+            </b-row>
         </template>
+
         <b-list-group>
-            <b-list-group-item>
-                <label for="search_answers">
-                    <b>Search: </b>
-                </label>
-                <input id="search_answers" type="text" v-model="search_answers"/>
+            <b-list-group-item class="text-center">
+                <b-form-input type="text" placeholder="Prefix Search" v-model="search_answers" label-cols-sm="3"></b-form-input>
             </b-list-group-item>
             <b-list-group-item
                     v-for="(answer, index) in filtered_answers"
@@ -73,6 +83,9 @@
                     this.search_answers = "";
                 }
                 return active_answers
+            },
+            toggle_multipleanswers_clicked() {
+                this.reset_active_answers();
             },
         },
         computed: {

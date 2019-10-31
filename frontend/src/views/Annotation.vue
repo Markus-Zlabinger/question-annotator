@@ -1,11 +1,13 @@
 <template>
     <div>
-        <!--        <h1>Annotation</h1>-->
-        <b-container>
+
+
+        <h1 v-if="!candidate">All questions are annotated.</h1>
+        <b-container v-if="candidate">
             <!-- CANDIDATE QUESTION -->
             <b-row class="justify-content-md-center">
                 <b-col class="text-center">
-                  <span class="candidate">
+                  <span v-if="candidate" class="candidate">
                     <b>Candidate Question:</b>
                     {{candidate.question}}
                   </span>
@@ -18,37 +20,29 @@
                                 <b-button variant="primary" size="lg" @click="save_annotation">Save Annotation
                                 </b-button>
                             </div>
-                        </b-col>
-                        <b-col>
-                            <div class="custom-control custom-switch">
-                                <input type="checkbox" class="custom-control-input" id="togglePreselect"
-                                       @click="toggle_preselect_clicked()"
-                                       v-model="toggle_preselect">
-                                <label class="custom-control-label" for="togglePreselect">Preselect Clusters</label>
-                            </div>
-                            <div class="custom-control custom-switch">
-                                <input type="checkbox" class="custom-control-input" id="toggleMultipleanswers"
-                                       @click="toggle_multipleanswers_clicked()"
-                                       v-model="$store.state.multipleanswers">
-                                <label class="custom-control-label" for="toggleMultipleanswers">Multiple Answers</label>
-                            </div>
-                        </b-col>
-                        <b-col>
-                            <b-alert v-model="annotation_success" variant="success" dismissible>
-                                The candidate <b>'{{success_candidate}}'</b> and <b>{{success_num_annotations}}</b>
-                                other questions were annotated.
-                            </b-alert>
+                            <SaveAnnotation ref="saveannotation"></SaveAnnotation>
                         </b-col>
                     </b-row>
                 </b-col>
             </b-row>
             <b-row class="justify-content-md-center">
                 <b-card-group deck header-tag="header">
-
                     <!-- QUESTION LIST  -->
-                    <b-card align="center">
+                    <b-card>
                         <template v-slot:header>
-                            <b>Select questions</b>
+                            <b-row>
+                                <b-col>
+                                    <b>Select question(s)</b>
+                                </b-col>
+                                <b-col>
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="togglePreselect"
+                                               @click="toggle_preselect_clicked()"
+                                               v-model="toggle_preselect">
+                                        <label class="custom-control-label" for="togglePreselect">Preselect Clusters</label>
+                                    </div>
+                                </b-col>
+                            </b-row>
                         </template>
                         <b-list-group>
                             <b-list-group-item
@@ -58,39 +52,19 @@
                                     :class="{'active': active_questions[index]}"
                                     button
                             >
-                                <div class="question">{{question.question}}</div>
-                                <div class="similarity">similarity: {{question.similarity.toFixed(2)}}</div>
+                                <!--                                <div class="question">-->
+                                {{question.question}}
+                                <b-badge variant="light" :style="'background-color: ' + ranked_questions_colorcodes[index]" class="float-right">
+                                    {{question.similarity.toFixed(2)}}
+                                </b-badge>
+                                <!--                                </div>-->
+                                <!--                                <div class="similarity"> {{question.similarity.toFixed(2)}}</div>-->
                             </b-list-group-item>
                         </b-list-group>
                     </b-card>
 
                     <!-- ANSWER LIST  -->
                     <AnswerList ref="answerlist"></AnswerList>
-                    <!--                    <b-card align="center">-->
-                    <!--                        <template v-slot:header>-->
-                    <!--                            <b>Select answer(s)</b>-->
-                    <!--                        </template>-->
-                    <!--                        <b-list-group>-->
-                    <!--                            <b-list-group-item>-->
-                    <!--                                <label for="search_answers">-->
-                    <!--                                    <b>Search: </b>-->
-                    <!--                                </label>-->
-                    <!--                                <input id="search_answers" type="text" v-model="search_answers"/>-->
-                    <!--                            </b-list-group-item>-->
-                    <!--                            <b-list-group-item-->
-                    <!--                                    v-for="(answer, index) in answers"-->
-                    <!--                                    :key="index"-->
-                    <!--                                    @click="answer_clicked(index)"-->
-                    <!--                                    :class="{'active': active_answers[index]}"-->
-                    <!--                                    button-->
-                    <!--                            >-->
-                    <!--                                <div class="answer">-->
-                    <!--                                    <b>{{answer.aid}}: </b>-->
-                    <!--                                    <span v-html="answer.answer"></span>-->
-                    <!--                                </div>-->
-                    <!--                            </b-list-group-item>-->
-                    <!--                        </b-list-group>-->
-                    <!--                    </b-card>-->
                 </b-card-group>
             </b-row>
         </b-container>
@@ -100,24 +74,21 @@
 <script>
     import axios from "axios";
     import AnswerList from "../components/AnswerList";
+    import SaveAnnotation from "../components/SaveAnnotation";
 
 
     export default {
         components: {
-            AnswerList
+            AnswerList,
+            SaveAnnotation,
         },
         data() {
             return {
                 candidate: {},
                 ranked_questions: [],
+                ranked_questions_colorcodes: [],
                 active_questions: [],
                 selected_questions: [],
-                // answers: [],
-                // search_answers: "",
-                //selected_answers: [],
-                // active_answers: [],
-                // add_answer_short: "",
-                // add_answer_long: "",
                 toggle_preselect: this.$store.state.preselect,
                 annotation_success: false,
                 success_num_annotations: 0,
@@ -125,12 +96,6 @@
             };
         },
         methods: {
-            answer_clicked(index) {
-                if (this.$store.state.multipleanswers == false) {
-                    this.render_active_answers()
-                }
-                this.$set(this.active_answers, index, !this.active_answers[index]);
-            },
             question_clicked(question, index) {
                 this.$set(this.active_questions, index, !this.active_questions[index]);
             },
@@ -138,89 +103,56 @@
                 this.$store.state.preselect = !this.$store.state.preselect;
                 this.render_active_questions();
             },
-            toggle_multipleanswers_clicked() {
-                this.render_active_answers();
-            },
-            save_annotation() {
-                let active_answers = this.$refs.answerlist.get_active_answers();
-                if (active_answers.length === 0) {
-                    alert("Please select an Answer");
-                    window.scrollTo(0, 0);
-                    return;
-                }
 
-                const url = "http://127.0.0.1:5000/saveannotation";
-                const formData = new FormData();
-
-                active_answers.forEach(aid => {
-                    formData.append("labels[]", aid);
-                });
-
-                this.selected_questions = this.ranked_questions
+            async save_annotation() {
+                let questionlabels = this.ranked_questions
                     .filter((question, i) => this.active_questions[i])
                     .map(question => question.qid);
-                this.selected_questions.forEach(question => {
-                    formData.append("questionlist[]", question);
-                });
-                formData.append("candidate", this.candidate.qid);
-                this.success_num_annotations = this.selected_questions.length;
-                this.success_candidate = this.candidate.question;
-                axios
-                    .post(url, formData)
-                    .then(response => {
-                        this.generate_content(response);
-                        this.annotation_success = true;
-                        window.scrollTo(0, 0);
-                    })
-                    .catch(e => {
-                        alert("Something went wrong! Please try again later.");
-                    });
+                questionlabels.push(this.candidate.qid)
+                let answerlabels = this.$refs.answerlist.get_active_answers();
+                let retval = await this.$refs.saveannotation.save_annotation(this.candidate.question, answerlabels, questionlabels);
+                if (retval !== false) {
+                    this.generate_content();
+                }
+
+            },
+            getColor(value) {
+                //value from 0 to 1
+                let hue = ((value) * 120).toString(10);
+                return ["hsl(", hue, ",100%,50%)"].join("");
             },
             render_active_questions() {
                 this.active_questions = this.ranked_questions.map(question => {
                     return this.$store.state.preselect && question.preselect;
                 });
             },
-            render_active_answers() {
-                this.active_answers = this.answers.map(answer => {
-                    return false;
-                });
-            },
-            generate_content(response) {
-                console.log(response.data);
-                this.candidate = response.data.candidate;
-                this.ranked_questions = response.data.ranked_questions;
-                this.answers = response.data.answers;
-                this.render_active_answers();
-                this.render_active_questions();
+
+            generate_content() {
+                const url = "http://127.0.0.1:5000/candidate";
+                axios
+                    .get(url)
+                    .then(response => {
+                        this.candidate = response.data.candidate;
+                        this.ranked_questions = response.data.ranked_questions;
+                        this.answers = response.data.answers;
+                        this.ranked_questions_colorcodes = this.ranked_questions.map(question => {
+                            return this.getColor(question.similarity);
+                        });
+
+                            // new Array(this.ranked_questions.length).fill("yellow");
+                        // this.render_active_answers();
+                        this.render_active_questions();
+                    })
+                    .catch(e => {
+                        console.log(e);
+                    });
+
             },
         },
         mounted() {
-            const url = "http://127.0.0.1:5000/candidate";
-            axios
-                .get(url)
-                .then(response => {
-                    this.generate_content(response);
-                })
-                .catch(e => {
-                    console.log(e);
-                });
-        },
-        computed: {
-            filtered_answers() {
-                return this.answers.filter(answer => {
-                    return (
-                        answer.answer
-                            .toLowerCase()
-                            .includes(this.search_answers.toLowerCase()) ||
-                        answer["answer-short"]
-                            .toLowerCase()
-                            .includes(this.search_answers.toLowerCase())
-                    );
-                });
-            }
+            this.generate_content();
         }
-    };
+    }
 </script>
 <style scoped>
     .candidate {
@@ -231,9 +163,9 @@
         float: right;
     }
 
-    .question {
-        float: left;
-    }
+    /*.question {*/
+    /*    float: left;*/
+    /*}*/
 
     .answer {
         text-align: left;
@@ -257,52 +189,3 @@
         padding: 10px;
     }
 </style>
-
-<!--           add_new_answer() {-->
-<!--                if ((this.add_answer_short == "") | (this.add_answer_long == "")) {-->
-<!--                    alert("Answer-short and/or answer missing!");-->
-<!--                } else {-->
-<!--                    const url = "http://127.0.0.1:5000/create_new_answer";-->
-<!--                    const formData = new FormData();-->
-<!--                    formData.append("answer", this.add_answer_long);-->
-<!--                    formData.append("answer-short", this.add_answer_short);-->
-<!--                    axios-->
-<!--                        .post(url, formData)-->
-<!--                        .then(response => {-->
-<!--                            console.log(response.data);-->
-<!--                            this.answers.push({-->
-<!--                                aid: response.data.aid,-->
-<!--                                "answer-short": this.add_answer_short,-->
-<!--                                answer: this.add_answer_long-->
-<!--                            });-->
-<!--                            //this.selected_answers.push(true);-->
-<!--                            this.selected_answer = this.answers.length - 1;-->
-<!--                            this.add_answer_short = "";-->
-<!--                            this.add_answer_long = "";-->
-<!--                        })-->
-<!--                        .catch(e => {-->
-<!--                            alert("Something went wrong! Please try again later.");-->
-<!--                        });-->
-<!--                }-->
-<!--            },-->
-
-<!--     <b-list-group-item>-->
-<!--                                <div class="add_news_answer">-->
-<!--                                    <p>Add new answer</p>-->
-<!--                                    <label for="add_answer_title">-->
-<!--                                        <b>Answer-Short:</b>-->
-<!--                                    </label>-->
-<!--                                    <b-form-input id="add_answer_title" type="text" v-model="add_answer_short"></b-form-input>-->
-<!--                                    <label for="add_answer_text">-->
-<!--                                        <b>Answer:</b>-->
-<!--                                    </label>-->
-<!--                                    <b-form-input id="add_answer_text" type="text" v-model="add_answer_long"></b-form-input>-->
-<!--                                    <b-button-->
-<!--                                            class="add_answer_button"-->
-<!--                                            block-->
-<!--                                            variant="primary"-->
-<!--                                            @click="add_new_answer"-->
-<!--                                    >Add new answer-->
-<!--                                    </b-button>-->
-<!--                                </div>-->
-<!--                            </b-list-group-item>-->

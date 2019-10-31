@@ -51,7 +51,7 @@
                                         <b-list-group flush>
                                             <b-list-group-item><b>Labeled Answer
                                                 ({{question.outlier.initial_label}}):</b>
-                                                {{answer_dict[question.outlier.initial_label]}}
+                                                {{answer_dict[question.outlier.initial_label].answer}}
                                             </b-list-group-item>
                                             <b-list-group-item><b>Predicted Answer
                                                 ({{question.outlier.predicted_label}}):</b>
@@ -72,7 +72,7 @@
                 </b-card-group>
             </b-row>
             <!-- MODIFY QUESTION MODAL -->
-            <b-modal v-model="showModify" hide-footer>
+            <b-modal v-model="showModify" scrollable hide-footer>
                 <template v-slot:modal-title>
                     Modify
                 </template>
@@ -81,13 +81,14 @@
                         <b>Question:</b> {{questions[modify_qid]}}
                     </b-list-group-item>
                     <b-list-group-item>
-                        <b>Answer Label:</b> {{modify_aid}}
+                        <b>Current Label:</b> {{modify_aid}}
                     </b-list-group-item>
                     <b-list-group>
                         <AnswerList ref="answerlist"></AnswerList>
                     </b-list-group>
                     <b-list-group-item>
-                        <b-button variant="danger" @click="delete_annotation(modify_qid, modify_aid)">Delete Annotation</b-button>
+                        <SaveAnnotation ref="saveannotation"></SaveAnnotation>
+                        <b-button variant="danger" @click="change_annotation(modify_qid, modify_aid)">Change Label</b-button>
                     </b-list-group-item>
                 </b-list-group>
 
@@ -99,11 +100,13 @@
 <script>
     import axios from "axios";
     import AnswerList from "../components/AnswerList";
+    import SaveAnnotation from "../components/SaveAnnotation";
 
 
     export default {
         components: {
-            AnswerList
+            AnswerList,
+            SaveAnnotation
         },
 
         data() {
@@ -133,7 +136,6 @@
                 this.showModify = true;
             },
             delete_annotation(qid, aid) {
-                const url = "http://127.0.0.1:5000/deleteannotation";
                 const formData = new FormData();
                 formData.append("aid", aid);
                 formData.append("qid", qid);
@@ -145,6 +147,12 @@
                     .catch(e => {
                         alert("Something went wrong! Please try again later.");
                     });
+            },
+            async change_annotation(qid) {
+                let answerlabels = this.$refs.answerlist.get_active_answers();
+                await this.$refs.saveannotation.change_annotation(this.questions[qid], qid, answerlabels);
+                this.showModify = false;
+                this.generate_content();
             },
             generate_content() {
                 const url = "http://127.0.0.1:5000/get_overview";

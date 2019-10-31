@@ -22,19 +22,19 @@ class Analysis:
         self.initialize()
 
     def initialize(self):
-        _, self.questions = data_io.get_questions()
+        self.questions = data_io.get_questions()
         self.questions_vectors = data_io.get_question_vectors()
 
 
     def get_clusters(self):
         clusterer = OPTICS(metric="cosine", min_samples=3, algorithm="brute")
         clusterer.fit(self.questions_vectors)
-        self.questions_clusterlabels = clusterer.labels_
+        self.questions_clusterlabels = {aid: label for aid, label in zip(self.questions.keys(), clusterer.labels_)}
         return self.prepare_clusters(clusterer.labels_)
 
     def prepare_clusters(self, cluster_labels):
         cluster_results = []
-        questions = np.array(self.questions)
+        questions = np.array(list(self.questions.keys()))
         score = 0.0
         # cluster_labels = np.array(cluster_labels)
         # clusters = set(cluster_labels)
@@ -60,7 +60,7 @@ class Analysis:
             return set()
 
         preselect_set = set()
-        for qid, clusterlabel in enumerate(self.questions_clusterlabels):
+        for qid, clusterlabel in self.questions_clusterlabels.items():
             if clusterlabel == preselect_label and qid != candidate_qid:
                 preselect_set.add(qid)
         return preselect_set
