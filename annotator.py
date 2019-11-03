@@ -13,7 +13,6 @@ class Annotator:
     question_pool = None
     # sim_matrix = None
     question_ids = None
-    q2s_simmat = None
     q2q_simmat = None
 
 
@@ -142,44 +141,55 @@ class Annotator:
 
     def compute_outlier_score(self, qid_current, qids):
         # TODO check if that is ever true
-        assert qid_current not in qids
+        # assert qid_current not in qids
         scores = [self.get_q2q_similarity(qid_current, qid) for qid in qids]
         return np.mean(scores)
 
 
     def compute_outliers(self, annotations):
-        aids = list(annotations["aid"].unique())
-        aid2qids = {aid: set(annotations["qid"][annotations["aid"] == aid]) for aid in aids}
+        answer_labels = list(annotations["aid"].unique())
+        answer_label2qids = {aid: set(annotations["qid"][annotations["aid"] == aid]) for aid in answer_labels}
         outlier_scores = dict()
         for qid_current, aid_current in zip(annotations["qid"], annotations["aid"]):
-            score_current_aid = self.get_q2q_similarity(qid_current, qid_current)
-            score_other_aid_max = 0.0
-            other_aid_max = aid_current
-            other_qids = [x for x in aid2qids[aid_current] if x != qid_current]
-            if len(other_qids) > 0: # Check if current_qid is the only question labeled with current_aid
-                score_current_aid = self.compute_outlier_score(qid_current, aid2qids[aid_current])
-            for aid in aids:
-                qidlist = aid2qids[aid]
-                if qid_current not in qidlist:
-                    score_other_aid = self.compute_outlier_score(qid_current, qidlist)
-                    if score_other_aid_max < score_other_aid:
-                        score_other_aid_max = score_other_aid
-                        other_aid_max = aid
-            outlier_scores[qid_current] = {"score": score_current_aid - score_other_aid_max, "predicted_label": other_aid_max, "initial_label": aid_current}
+            ranked_scores = []
+            for answer_label in answer_labels:
+                qids = answer_label2qids[answer_label]
+                if qid_current not in qids:
+                    score_other_aid = self.compute_outlier_score(qid_current, qids)
+                    ranked_scores.append({"score": score_other_aid, "aid": answer_label})
+            ranked_scores = sorted(ranked_scores, key=lambda x: x["score"], reverse=True)
+
+
+            other_qids = answer_label2qids[aid_current]
+            score_current = 1.0
+            if len(other_qids) > 1: # Check if current_qid is the only question labeled with current_aid
+                score_current = self.compute_outlier_score(qid_current, answer_label2qids[aid_current]- {qid_current})
+            second_best_score = 0.0
+            second_best_aid = aid_current
+            if len(ranked_scores) > 0:
+                second_best_score = ranked_scores[0]["score"]
+                second_best_aid = ranked_scores[0]["aid"]
+
+            outlier_scores[qid_current] = {"score": score_current - second_best_score, "predicted_label": second_best_aid, "initial_label": aid_current}
+            # score_current_aid = self.get_q2q_similarity(qid_current, qid_current)
+            # score_other_aid_max = 0.0
+            # other_aid_max = aid_current
+            # other_qids = [x for x in aid2qids[aid_current] if x != qid_current]
+            # if len(other_qids) > 0: # Check if current_qid is the only question labeled with current_aid
+            #     score_current_aid = self.compute_outlier_score(qid_current, aid2qids[aid_current])
+            # for aid in aids:
+            #     qidlist = aid2qids[aid]
+            #     if qid_current not in qidlist:
+            #         score_other_aid = self.compute_outlier_score(qid_current, qidlist)
+            #         if score_other_aid_max < score_other_aid:
+            #             score_other_aid_max = score_other_aid
+            #             other_aid_max = aid
+
         return outlier_scores
 
 
 
     def save_annotations(self, aid, question_ids):
-#   TODO PROBLEM WHEn CHANGING FROM OVERVIEW
-#     return self.view_functions[rule.endpoint](**req.view_args)
-#   File "D:/github/question-annotator/application.py", line 93, in modifyannotation
-#     annotator.modify_annotation(qid, answerlabels)
-#   File "D:\github\question-annotator\annotator.py", line 199, in modify_annotation
-#     self.remove_annotation(qid)
-#   File "D:\github\question-annotator\annotator.py", line 184, in save_annotations
-#     "aid": aid,
-# KeyError: 21
         annotations = []
         for qid in question_ids:
             annotations.append({
@@ -206,7 +216,7 @@ class Annotator:
     def remove_annotation(self, qid):
         annotations = self.get_annotations()
         if annotations is not None:
-            annotations = annotations[annotations["qid"] != int(qid)]
+            annotations = annotations[annotations["qid"] != qid]
             # Save
             annotations.to_csv(config.PATH_ANNOTATION_FILE, index=False, mode='w', header=True)
 
@@ -234,6 +244,9 @@ class Annotator:
     def get_next_candidate(self):
         if len(self.question_pool) == 1:
             return self.get_question(list(self.question_pool.keys())[0])
+
+        if len(self.question_pool) == 0:
+            return None
 
         max_sim = -100.0
         representative_idx = None

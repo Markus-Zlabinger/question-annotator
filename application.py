@@ -47,6 +47,15 @@ def candidate(cluster_preselect=True):
         "answers": answers
     })
 
+@app.route("/getanswers", methods=["POST"])
+def getanswers():
+    global answer_catalog
+    qids = request.form.getlist("qids[]", type=str)
+    print(qids)
+    return jsonify({
+        "answers": answer_catalog.get_ranked_answers(qids)
+    })
+
 
 @app.route("/getclusters")
 def getclusters():
@@ -88,7 +97,7 @@ def saveannotation():
 @app.route("/modifyannotation", methods=["POST"])
 def modifyannotation():
     global annotator, answer_catalog
-    qid = request.form.get("qid", type=int)
+    qid = request.form.get("qid", type=str)
     answerlabels = request.form.getlist("labels[]", type=str)
     annotator.modify_annotation(qid, answerlabels)
     return ""
@@ -130,12 +139,12 @@ def get_overview():
     })
 
 
-@app.route("/getanswers", methods=["GET"])
-def getanswers():
-    global answer_catalog
-    return jsonify({
-        "answers": answer_catalog.answers,
-    })
+# @app.route("/getanswers", methods=["GET"])
+# def getanswers():
+#     global answer_catalog
+#     return jsonify({
+#         "answers": answer_catalog.answers,
+#     })
 
 
 @app.route("/reset", methods=["GET"])

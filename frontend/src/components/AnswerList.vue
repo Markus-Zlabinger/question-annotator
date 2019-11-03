@@ -18,7 +18,8 @@
 
         <b-list-group>
             <b-list-group-item class="text-center">
-                <b-form-input type="text" placeholder="Prefix Search" v-model="search_answers" label-cols-sm="3"></b-form-input>
+                <b-form-input type="text" placeholder="Prefix Search" v-model="search_answers"
+                              label-cols-sm="3"></b-form-input>
             </b-list-group-item>
             <b-list-group-item
                     v-for="(answer, index) in filtered_answers"
@@ -30,6 +31,10 @@
                 <div class="answer">
                     <b>{{answer.aid}}: </b>
                     <span v-html="answer.answer"></span>
+                    <b-badge variant="light" :style="'background-color: ' + getColor(answer.similarity)"
+                             class="float-right">
+                        {{answer.similarity.toFixed(2)}}
+                    </b-badge>
                 </div>
             </b-list-group-item>
         </b-list-group>
@@ -47,12 +52,22 @@
                 search_answers: "",
                 answers: [],
                 active_answers: [],
+                qids: [],
             };
         },
         mounted() {
             const url = "http://127.0.0.1:5000/getanswers";
+            const formData = new FormData();
+            this.qids.forEach(qid => {
+                formData.append("qids[]", qid);
+            });
+            console.log(this.qids)
+            // console.log("LOOOL")
+            // formData.append("qids[]", "47");
+            // formData.append("qids[]", "48");
+            // formData.append("qids[]", "49");
             axios
-                .get(url)
+                .post(url, formData)
                 .then(response => {
                     console.log(response.data);
                     this.answers = response.data.answers;
@@ -86,6 +101,11 @@
             },
             toggle_multipleanswers_clicked() {
                 this.reset_active_answers();
+            },
+            getColor(value) {
+                //value from 0 to 1
+                let hue = ((value) * 120).toString(10);
+                return ["hsl(", hue, ",100%,50%)"].join("");
             },
         },
         computed: {

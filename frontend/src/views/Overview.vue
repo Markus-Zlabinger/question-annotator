@@ -37,11 +37,10 @@
                                     v-for="(question, question_index) in annotation.questions"
                                     :key="question_index">
                                 {{question.question}}
-                                <!-- IF OUTLIER IS DETECTED -->
                                 <b-badge v-b-modal="group_index+ '_' + question_index"
                                          v-if="question.outlier.score < 0.0"
                                          href="#"
-                                         variant="danger">
+                                         :style="'background-color: ' + get_color(question.outlier.score)">
                                     Potential Outlier
                                     <!--                                    <b-button v-b-modal.my-modal>Show Modal</b-button>-->
                                     <b-modal v-bind:id="group_index+ '_' + question_index" hide-footer>
@@ -49,6 +48,9 @@
                                             <b>Question:</b> {{question.question}}
                                         </template>
                                         <b-list-group flush>
+                                            <b-list-group-item>
+                                                <b>Outlier Score:</b> {{(Math.abs(question.outlier.score.toFixed(3))*100).toFixed(1)}}%
+                                            </b-list-group-item>
                                             <b-list-group-item><b>Labeled Answer
                                                 ({{question.outlier.initial_label}}):</b>
                                                 {{answer_dict[question.outlier.initial_label].answer}}
@@ -88,7 +90,8 @@
                     </b-list-group>
                     <b-list-group-item>
                         <SaveAnnotation ref="saveannotation"></SaveAnnotation>
-                        <b-button variant="danger" @click="change_annotation(modify_qid, modify_aid)">Change Label</b-button>
+                        <b-button variant="danger" @click="change_annotation(modify_qid, modify_aid)">Change Label
+                        </b-button>
                     </b-list-group-item>
                 </b-list-group>
 
@@ -132,8 +135,24 @@
         methods: {
             modify_annotation(qid, aid) {
                 this.modify_qid = qid;
-                this.modify_aid = aid
+                this.modify_aid = aid;
                 this.showModify = true;
+            },
+            get_color(value) {
+                value = Math.abs(value);
+                if (value > 0.25)
+                    return "hsl(0, 100%,50%)";
+                if (value > 0.20)
+                    return "hsl(0, 80%,50%)";
+                if (value > 0.10)
+                    return "hsl(0, 60%,50%)";
+                if (value > 0.05)
+                    return "hsl(0, 40%,50%)";
+                return "hsl(0, 20%,50%)";
+                // let hue = ((value) * 1000).toString(10);
+                // console.log(["hsl(0,", hue,"%,50%)"].join(""));
+                // return ["hsl(0,", hue,"%,50%)"].join("");
+                // return "Hello";
             },
             delete_annotation(qid, aid) {
                 const formData = new FormData();

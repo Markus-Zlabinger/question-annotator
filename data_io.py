@@ -2,6 +2,7 @@ import numpy as np
 import config
 import pandas as pd
 from collections import OrderedDict
+import ast
 
 def get_questions(path=config.PATH_QUESTIONS):
     # questions = dict()
@@ -24,7 +25,11 @@ def get_q2q_simmatrix():
     return load_simmatrix(config.PATH_Q2Q_MATRIX)
 
 def get_q2s_simmatrix():
-    return load_simmatrix(config.PATH_Q2S_MATRIX)
+    generic = lambda x: ast.literal_eval(x)
+    simmatrix = load_simmatrix(config.PATH_Q2S_MATRIX)
+    for col in simmatrix.columns:
+        simmatrix[col] = simmatrix[col].apply(generic)
+    return simmatrix.copy()
 
 def load_simmatrix(path):
     df = pd.read_csv(path, index_col=0, header=0)

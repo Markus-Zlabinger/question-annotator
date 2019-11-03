@@ -53,12 +53,10 @@
                                     button
                             >
                                 <!--                                <div class="question">-->
-                                {{question.question}}
+                                {{question.qid}}: {{question.question}}
                                 <b-badge variant="light" :style="'background-color: ' + ranked_questions_colorcodes[index]" class="float-right">
                                     {{question.similarity.toFixed(2)}}
                                 </b-badge>
-                                <!--                                </div>-->
-                                <!--                                <div class="similarity"> {{question.similarity.toFixed(2)}}</div>-->
                             </b-list-group-item>
                         </b-list-group>
                     </b-card>
@@ -138,6 +136,11 @@
                         this.ranked_questions_colorcodes = this.ranked_questions.map(question => {
                             return this.getColor(question.similarity);
                         });
+                        // Change THis TODO
+                        this.$refs.answerlist.qids = [];
+                        this.$refs.answerlist.qids.push("47");
+                        console.log(this.$refs.answerlist.qids)
+
 
                             // new Array(this.ranked_questions.length).fill("yellow");
                         // this.render_active_answers();
