@@ -54,7 +54,8 @@
                             >
                                 <!--                                <div class="question">-->
                                 {{question.qid}}: {{question.question}}
-                                <b-badge variant="light" :style="'background-color: ' + ranked_questions_colorcodes[index]" class="float-right">
+                                <b-badge variant="light" :style="'background-color: ' + ranked_questions_colorcodes[index]"
+                                         class="float-right">
                                     {{question.similarity.toFixed(2)}}
                                 </b-badge>
                             </b-list-group-item>
@@ -96,6 +97,14 @@
         methods: {
             question_clicked(question, index) {
                 this.$set(this.active_questions, index, !this.active_questions[index]);
+                this.update_answers();
+            },
+            update_answers() {
+                let questionlabels = this.ranked_questions
+                    .filter((question, i) => this.active_questions[i])
+                    .map(question => question.qid);
+                questionlabels.push(this.candidate.qid);
+                this.$refs.answerlist.update_answers(questionlabels);
             },
             toggle_preselect_clicked() {
                 this.$store.state.preselect = !this.$store.state.preselect;
@@ -106,7 +115,7 @@
                 let questionlabels = this.ranked_questions
                     .filter((question, i) => this.active_questions[i])
                     .map(question => question.qid);
-                questionlabels.push(this.candidate.qid)
+                questionlabels.push(this.candidate.qid);
                 let answerlabels = this.$refs.answerlist.get_active_answers();
                 let retval = await this.$refs.saveannotation.save_annotation(this.candidate.question, answerlabels, questionlabels);
                 if (retval !== false) {
@@ -123,6 +132,7 @@
                 this.active_questions = this.ranked_questions.map(question => {
                     return this.$store.state.preselect && question.preselect;
                 });
+                this.update_answers();
             },
 
             generate_content() {
@@ -136,13 +146,9 @@
                         this.ranked_questions_colorcodes = this.ranked_questions.map(question => {
                             return this.getColor(question.similarity);
                         });
-                        // Change THis TODO
-                        this.$refs.answerlist.qids = [];
-                        this.$refs.answerlist.qids.push("47");
-                        console.log(this.$refs.answerlist.qids)
 
 
-                            // new Array(this.ranked_questions.length).fill("yellow");
+                        // new Array(this.ranked_questions.length).fill("yellow");
                         // this.render_active_answers();
                         this.render_active_questions();
                     })

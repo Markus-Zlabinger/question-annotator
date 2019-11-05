@@ -51,9 +51,14 @@ def candidate(cluster_preselect=True):
 def getanswers():
     global answer_catalog
     qids = request.form.getlist("qids[]", type=str)
-    print(qids)
+    active_answerids = request.form.getlist("active_aids[]", type=str)
+    # print(active_aids)
+    # print(type(active_aids))
+    answers = answer_catalog.get_ranked_answers(qids)
+    for ans in answers:
+        ans["active"] = ans["aid"] in active_answerids
     return jsonify({
-        "answers": answer_catalog.get_ranked_answers(qids)
+        "answers": answers
     })
 
 
@@ -117,10 +122,13 @@ def modifyannotation():
 #     })
 
 @app.route("/deleteannotation", methods=["POST"])
-def delete_annotation():
-    qid = request.form.getlist("qid", type=str)
-    aid = request.form.getlist("aid", type=str)
-    print(qid, aid)
+def deleteannotation():
+    global annotator
+    qid = request.form.get("qid", type=str)
+    aid = request.form.get("aid", type=str)
+    # print(qid, aid)
+    annotator.delete_annotation(qid, aid)
+    return "Success"
 
 
 @app.route("/get_overview", methods=["GET"])

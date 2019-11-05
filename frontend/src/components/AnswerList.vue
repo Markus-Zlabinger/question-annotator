@@ -22,10 +22,10 @@
                               label-cols-sm="3"></b-form-input>
             </b-list-group-item>
             <b-list-group-item
-                    v-for="(answer, index) in filtered_answers"
+                    v-for="(answer, index) in answers"
                     :key="index"
                     @click="answer_clicked(index)"
-                    :class="{'active': active_answers[index]}"
+                    :class="{'active': answer.active}"
                     button
             >
                 <div class="answer">
@@ -51,49 +51,68 @@
             return {
                 search_answers: "",
                 answers: [],
-                active_answers: [],
-                qids: [],
+                // active_answers: true,
+                // answer_scores: [],
             };
         },
         mounted() {
+            this.reset_active_answers();
             const url = "http://127.0.0.1:5000/getanswers";
             const formData = new FormData();
-            this.qids.forEach(qid => {
-                formData.append("qids[]", qid);
-            });
-            console.log(this.qids)
-            // console.log("LOOOL")
-            // formData.append("qids[]", "47");
-            // formData.append("qids[]", "48");
-            // formData.append("qids[]", "49");
             axios
                 .post(url, formData)
                 .then(response => {
-                    console.log(response.data);
                     this.answers = response.data.answers;
-                    this.reset_active_answers();
                 })
                 .catch(e => {
                     console.log(e);
                 })
         },
         methods: {
+            update_answers(qids) {
+                const url = "http://127.0.0.1:5000/getanswers";
+                const formData = new FormData();
+                qids.forEach(qid => {
+                    formData.append("qids[]", qid);
+                });
+
+                this.answers.forEach(answer => {
+                    if (answer.active) {
+                        formData.append("active_aids[]", answer.aid);
+                    }
+                });
+
+                axios
+                    .post(url, formData)
+                    .then(response => {
+                        this.answers = response.data.answers;
+                    })
+                    .catch(e => {
+                        console.log(e);
+                    })
+            },
             reset_active_answers() {
-                this.active_answers = new Array(this.answers.length).fill(false);
+                this.answers.forEach(answer => {
+                    answer["active"] = false;
+                })
             },
             answer_clicked(index) {
+
                 if (this.$store.state.multipleanswers === false) {
-                    this.reset_active_answers()
+                    this.reset_active_answers();
                 }
-                this.$set(this.active_answers, index, !this.active_answers[index]);
+
+                this.answers[index].active = !this.answers[index].active
+
             },
             get_active_answers() {
                 let active_answers = [];
-                this.answers.forEach((answer, index) => {
-                    if (this.active_answers[index]) {
+                this.answers.forEach(answer => {
+                    if (answer.active === true) {
                         active_answers.push(answer.aid)
                     }
                 });
+
                 if (active_answers.length > 0) {
                     this.search_answers = "";
                 }

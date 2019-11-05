@@ -57,7 +57,7 @@ class Answers:
             # TODO Fix aggregation
 
             # agg_score = self.aggregation_method(scores)
-            agg_score = np.max(scores)
+            agg_score = np.mean(scores)
             ranked_answers.append({"aid": aid, "answer": self.get_answer(aid)["answer"], "similarity": agg_score})
         ranked_answers = sorted(ranked_answers, key=lambda x: x["similarity"], reverse=True)
         return ranked_answers

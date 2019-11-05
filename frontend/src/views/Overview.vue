@@ -49,15 +49,17 @@
                                         </template>
                                         <b-list-group flush>
                                             <b-list-group-item>
-                                                <b>Outlier Score:</b> {{(Math.abs(question.outlier.score.toFixed(3))*100).toFixed(1)}}%
+                                                <b>Outlier Score:</b>
+                                                {{(Math.abs(question.outlier.score.toFixed(3))*100).toFixed(1)}}%
                                             </b-list-group-item>
                                             <b-list-group-item><b>Labeled Answer
-                                                ({{question.outlier.initial_label}}):</b>
-                                                {{answer_dict[question.outlier.initial_label].answer}}
+                                                ({{question.outlier.initial_label}}):</b> <span v-html="answer_dict[question.outlier.initial_label].answer"></span>
+                                                <!-- TODO: Something goes wrong here -->
+
                                             </b-list-group-item>
                                             <b-list-group-item><b>Predicted Answer
                                                 ({{question.outlier.predicted_label}}):</b>
-                                                {{answer_dict[question.outlier.predicted_label].answer}}
+                                                <span v-html="answer_dict[question.outlier.predicted_label].answer"></span>
                                             </b-list-group-item>
                                         </b-list-group>
                                     </b-modal>
@@ -85,16 +87,16 @@
                     <b-list-group-item>
                         <b>Current Label:</b> {{modify_aid}}
                     </b-list-group-item>
-                    <b-list-group>
-                        <AnswerList ref="answerlist"></AnswerList>
-                    </b-list-group>
+<!--                    <b-list-group>-->
+<!--                        <AnswerList ref="answerlist"></AnswerList>-->
+<!--                    </b-list-group>-->
                     <b-list-group-item>
-                        <SaveAnnotation ref="saveannotation"></SaveAnnotation>
-                        <b-button variant="danger" @click="change_annotation(modify_qid, modify_aid)">Change Label
-                        </b-button>
+                        <b-button variant="danger" @click="delete_annotation(modify_qid, modify_aid)">Delete Annotation</b-button>
+                        <!--                        <SaveAnnotation ref="saveannotation"></SaveAnnotation>-->
+                        <!--                        <b-button variant="danger" @click="change_annotation(modify_qid, modify_aid)">Change Label-->
+                        <!--                        </b-button>-->
                     </b-list-group-item>
                 </b-list-group>
-
             </b-modal>
         </b-container>
     </div>
@@ -102,14 +104,14 @@
 
 <script>
     import axios from "axios";
-    import AnswerList from "../components/AnswerList";
+    // import AnswerList from "../components/AnswerList";
     import SaveAnnotation from "../components/SaveAnnotation";
 
 
     export default {
         components: {
-            AnswerList,
-            SaveAnnotation
+            // AnswerList,
+            // SaveAnnotation
         },
 
         data() {
@@ -155,12 +157,14 @@
                 // return "Hello";
             },
             delete_annotation(qid, aid) {
+                const url = "http://127.0.0.1:5000/deleteannotation";
                 const formData = new FormData();
                 formData.append("aid", aid);
                 formData.append("qid", qid);
                 axios
                     .post(url, formData)
                     .then(response => {
+                        this.showModify = false;
                         this.generate_content();
                     })
                     .catch(e => {
@@ -220,4 +224,4 @@
     .justify-content-md-center {
         padding: 0 10px;
     }
-</style>
+</style>                                                                                                                                                                                                                                                                           

@@ -126,10 +126,14 @@ class Annotator:
             aid = aids[0]
 
             answer = answer_catalog.get_answer(aid)
+
+            # questions = []
+            # for qid, aid in zip(df["qid"], df["aid"]):
+
             questions = [self.get_question(q) for q in df["qid"]]
 
             for question in questions:
-                question["outlier"] = qid2outlier[question["qid"]]
+                question["outlier"] = qid2outlier[(question["qid"], aid)]
 
             question_groups.append(
                 {
@@ -140,10 +144,9 @@ class Annotator:
         return question_groups
 
     def compute_outlier_score(self, qid_current, qids):
-        # TODO check if that is ever true
-        # assert qid_current not in qids
+        assert qid_current not in qids
         scores = [self.get_q2q_similarity(qid_current, qid) for qid in qids]
-        return np.mean(scores)
+        return np.median(scores)
 
 
     def compute_outliers(self, annotations):
@@ -170,7 +173,7 @@ class Annotator:
                 second_best_score = ranked_scores[0]["score"]
                 second_best_aid = ranked_scores[0]["aid"]
 
-            outlier_scores[qid_current] = {"score": score_current - second_best_score, "predicted_label": second_best_aid, "initial_label": aid_current}
+            outlier_scores[(qid_current, aid_current)] = {"score": score_current - second_best_score, "predicted_label": second_best_aid, "initial_label": aid_current}
             # score_current_aid = self.get_q2q_similarity(qid_current, qid_current)
             # score_other_aid_max = 0.0
             # other_aid_max = aid_current
@@ -208,17 +211,25 @@ class Annotator:
         df.to_csv(config.PATH_ANNOTATION_FILE, index=False, mode='a', header=append_header)
 
     def modify_annotation(self, qid, answerlabels):
-        self.remove_annotation(qid)
+        for answerlabel in answerlabels:
+            self.delete_annotation(qid, answerlabel)
         for aid in answerlabels:
             self.save_annotations(aid, [qid])
         pass
 
-    def remove_annotation(self, qid):
+    # def remove_annotation(self, qid):
+    #     annotations = self.get_annotations()
+    #     if annotations is not None:
+    #         annotations = annotations[annotations["qid"] != qid]
+    #         # Save
+    #         annotations.to_csv(config.PATH_ANNOTATION_FILE, index=False, mode='w', header=True)
+    def delete_annotation(self, qid, aid):
         annotations = self.get_annotations()
         if annotations is not None:
-            annotations = annotations[annotations["qid"] != qid]
+            annotations = annotations[(annotations["qid"] != qid) | (annotations["aid"] != aid)].copy()
             # Save
             annotations.to_csv(config.PATH_ANNOTATION_FILE, index=False, mode='w', header=True)
+            self.initialize_question_pool()
 
 
     def reset(self):
